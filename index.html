@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./favicon.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CalcURisk">
+<link rel="manifest" href="./manifest.webmanifest">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CalcURisk — Personal Coaching MVP</title>
+<meta name="theme-color" content="#0a0e17">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Rajdhani:wght@600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0e17; --surface:#111827; --surface2:#1a2235; --border:#1e2d45;
+  --accent:#00e5ff; --accent2:#ff6b35; --green:#00ff9d; --red:#ff4444;
+  --text:#f0f4ff; --muted:#8fa8c8; --label:#b8ccdf; --yellow:#ffdc00;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100dvh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:500px;margin:0 auto;padding:20px 16px 36px}
+.header{margin-bottom:14px}
+.logo-header{display:flex;justify-content:center;align-items:center;padding:4px 0 2px}
+.logo-header img{width:min(100%,320px);height:auto;display:block;filter:drop-shadow(0 0 14px rgba(0,229,255,.26))}
+.logo-note{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.3px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.card-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-family:'DM Mono',monospace;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.input-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.input-row:last-child{margin-bottom:0}
+.input-label{font-size:13px;color:var(--label);font-weight:600;flex:1}
+.input-wrap{position:relative;flex:0 0 auto}
+.input-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)}
+input[type="number"], input[type="text"], textarea, select{
+  background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);
+  font-family:'DM Mono',monospace;font-size:14px;padding:10px 12px;outline:none;width:132px
+}
+input[type="number"]{padding-left:26px}
+textarea{width:100%;min-height:88px;resize:vertical;line-height:1.55;padding:12px 14px}
+select{width:100%;padding-right:34px;-webkit-appearance:none;appearance:none}
+input:focus, textarea:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.08)}
+.mode-toggle,.toggle-row,.mini-toggle{display:flex;gap:6px}
+.toggle-btn,.mini-btn,.sl-preset,.action-btn,.pill-btn{
+  border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:10px;
+  font-family:'DM Mono',monospace;cursor:pointer;touch-action:manipulation;transition:.18s all ease
+}
+.toggle-btn{flex:1;padding:10px 8px;font-size:12px}
+.toggle-btn.active{background:rgba(0,229,255,.10);border-color:var(--accent);color:var(--accent)}
+.toggle-btn.long.active{background:rgba(0,255,157,.10);border-color:var(--green);color:var(--green)}
+.toggle-btn.short.active{background:rgba(255,68,68,.10);border-color:var(--red);color:var(--red)}
+.mini-btn,.sl-preset,.pill-btn{padding:7px 10px;font-size:11px}
+.mini-btn.active,.sl-preset.active,.pill-btn.active{background:rgba(0,229,255,.12);color:var(--accent);border-color:var(--accent)}
+.sl-preset.active.red{background:rgba(255,68,68,.12);color:var(--red);border-color:var(--red)}
+.panel-highlight{border-radius:14px;padding:14px;border:2px solid rgba(0,229,255,.32);background:rgba(0,229,255,.08)}
+.panel-warn{border-radius:14px;padding:14px;border:2px solid rgba(255,107,53,.35);background:rgba(255,107,53,.08)}
+.panel-good{border-radius:14px;padding:14px;border:2px solid rgba(0,255,157,.30);background:rgba(0,255,157,.07)}
+.helper{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.result-box{border-radius:14px;padding:14px;text-align:center}
+.result-blue{background:rgba(0,229,255,.08);border:2px solid var(--accent)}
+.result-orange{background:rgba(255,107,53,.08);border:2px solid var(--accent2)}
+.result-green{background:rgba(0,255,157,.08);border:2px solid var(--green)}
+.result-neutral{background:rgba(143,168,200,.06);border:2px solid rgba(184,204,223,.55)}
+.result-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;color:inherit;opacity:.92}
+.result-value{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;letter-spacing:-.8px;line-height:1.05}
+.result-sub{font-family:'DM Mono',monospace;font-size:11px;margin-top:6px;color:inherit;opacity:.88}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-family:'DM Mono',monospace;font-size:11px}
+.badge.green{background:rgba(0,255,157,.12);border:1px solid rgba(0,255,157,.35);color:var(--green)}
+.badge.orange{background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.35);color:var(--accent2)}
+.badge.red{background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.35);color:var(--red)}
+.badge.blue{background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.30);color:var(--accent)}
+.section-toggle{width:100%;background:none;border:none;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer}
+.section-toggle span.line{flex:1;height:1px;background:var(--border)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.kpi h3{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kpi .big{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;line-height:1}
+.kpi .small{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+.motivation{padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,255,157,.08));border:1px solid rgba(0,229,255,.28)}
+.motivation h3{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.motivation p{font-size:14px;line-height:1.5}
+.saved-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.plan-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.plan-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.plan-name{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:600}
+.plan-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5;margin-top:6px}
+.plan-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.action-btn{padding:8px 10px;font-size:11px}
+.action-btn.primary{background:linear-gradient(135deg,var(--accent),var(--green));color:#071018;border:none}
+.action-btn.warn{background:rgba(255,107,53,.10);color:var(--accent2);border-color:rgba(255,107,53,.35)}
+.action-btn.danger{background:rgba(255,68,68,.10);color:var(--red);border-color:rgba(255,68,68,.35)}
+.action-btn.good{background:rgba(0,255,157,.10);color:var(--green);border-color:rgba(0,255,157,.35)}
+.hidden{display:none !important}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.footer{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;line-height:1.7;margin-top:18px}
+@media (max-width:420px){
+  .wordmark h1{font-size:24px}
+  .results-grid,.kpis{grid-template-columns:1fr}
+  input[type="number"],input[type="text"]{width:124px}
+}
+</style>
+</head>
+<body>
+<!-- CalcURisk fixed package -->
+<div class="app">
+  <div class="header">
+    <div class="logo-header">
+      <img src="calcurisk_logo_header.webp" alt="CalcURisk">
+    </div>
+    <div class="logo-note">Personal Coaching MVP · You + Dad</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Mode</div>
+    <div class="mode-toggle">
+      <button id="modeFastBtn" class="toggle-btn active" onclick="setMode('fast')">⚡ FAST MODE</button>
+      <button id="modeFullBtn" class="toggle-btn" onclick="setMode('full')">🧩 FULL MODE</button>
+    </div>
+    <div class="helper">Fast Mode keeps only the fields you need for quick execution. Full Mode shows journaling, stats, saved plans, and coaching tools.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Account</div>
+    <div class="panel-warn" style="margin-bottom:12px;">
+      <div class="input-row" style="margin-bottom:0;">
+        <div class="input-label">Account Size</div>
+        <div class="input-wrap"><span class="input-prefix" id="accountCurrSymbol">$</span><input type="number" id="accountSize" value="1322" step="1" min="0"></div>
+      </div>
+    </div>
+    <div class="panel-highlight">
+      <div class="input-row" style="margin-bottom:0;">
+        <div class="input-label">Max Risk %</div>
+        <div class="input-wrap"><span class="input-prefix">%</span><input type="number" id="riskPct" value="1" step="0.1" min="0.1" max="100"></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="input-row" style="margin-bottom:0;align-items:center;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="badge blue" id="fxBadge">USD→GBP · 0.7576</span>
+      </div>
+      <div class="mini-toggle">
+        <button class="mini-btn active" id="currUSD" onclick="setCurrency('USD')">$</button>
+        <button class="mini-btn" id="currGBP" onclick="setCurrency('GBP')">£</button>
+        <button class="mini-btn" id="currEUR" onclick="setCurrency('EUR')">€</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Trade Setup</div>
+    <div class="input-row">
+      <div class="input-label">Stock Ticker</div>
+      <input type="text" id="tickerSymbol" placeholder="TICKER" maxlength="10" style="text-transform:uppercase;letter-spacing:2px;font-weight:700;padding-left:12px" />
+    </div>
+    <div class="input-row">
+      <div class="input-label">Trade Direction</div>
+      <div class="toggle-row" style="width:140px;">
+        <button id="btnLong" class="toggle-btn long active" onclick="setDirection('Long')">▲ LONG</button>
+        <button id="btnShort" class="toggle-btn short" onclick="setDirection('Short')">▼ SHORT</button>
+      </div>
+    </div>
+    <div class="panel-highlight" style="margin-top:4px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">📈 Entry Price</div>
+      <div class="input-row" style="margin-bottom:0;">
+        <div class="input-label">Price per Share</div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="entryPrice" value="1.09" step="0.01" min="0"></div>
+      </div>
+      <div class="helper">The price you plan to buy at.</div>
+    </div>
+    <div class="divider"></div>
+    <div class="card-title">Stop Loss</div>
+    <div class="panel-neutral panel-warn" style="margin-bottom:12px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#ff8f8f;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">🛑 Manual Stop Loss</div>
+      <div class="input-row" style="margin-bottom:0;">
+        <div class="input-label">Stop Loss Price</div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="stopLossManual" step="0.01" min="0" placeholder="0"></div>
+      </div>
+      <div class="helper">Type your exact stop. Clear it to use the preset below.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="flex:1;height:1px;background:var(--border)"></div><div class="helper" style="margin:0">OR USE A % PRESET</div><div style="flex:1;height:1px;background:var(--border)"></div></div>
+    <div class="mini-toggle" style="flex-wrap:wrap">
+      <button id="sl5" class="sl-preset" onclick="setSLPreset(5)">5%</button>
+      <button id="sl10" class="sl-preset" onclick="setSLPreset(10)">10%</button>
+      <button id="sl20" class="sl-preset active red" onclick="setSLPreset(20)">20%</button>
+      <button id="sl25" class="sl-preset" onclick="setSLPreset(25)">25%</button>
+      <button id="sl30" class="sl-preset" onclick="setSLPreset(30)">30%</button>
+    </div>
+    <div class="input-row" style="margin-top:12px;margin-bottom:0;">
+      <div>
+        <div class="result-value" style="font-size:24px;color:var(--red)" id="slGenerated">—</div>
+        <div class="helper" id="slSubLabel">20% below entry</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="helper">Stop Distance</div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--label)" id="slDistance">—</div>
+      </div>
+    </div>
+    <div id="directionWarning" class="helper" style="color:var(--accent2);font-weight:600"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Target Price</div>
+    <div class="panel-warn" style="margin-bottom:12px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⚡ Suggested Take Profit — 3:1</div>
+      <div class="input-row" style="margin-bottom:0;align-items:flex-end;">
+        <div>
+          <div class="helper" style="margin-top:0">Take Profit Price</div>
+          <div class="result-value" style="font-size:26px;color:var(--accent2)" id="auto3Price">—</div>
+          <div class="helper" id="auto3Label">enter entry &amp; stop first</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="helper" style="margin-top:0">Profit at 3:1</div>
+          <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--green);font-weight:500;" id="auto3Profit">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="panel-good" style="margin-bottom:12px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">🎯 Manual Target Price</div>
+      <div class="input-row" style="margin-bottom:0;">
+        <div class="input-label">Target Price</div>
+        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="manualTarget" step="0.01" min="0" placeholder="0"></div>
+      </div>
+      <div class="helper">Type your own target to see your custom R:R instantly.</div>
+    </div>
+    <div id="manualRRBlock" class="hidden panel-good">
+      <div class="input-row" style="margin-bottom:0;align-items:flex-end;">
+        <div>
+          <div class="helper" style="margin-top:0">Your R:R</div>
+          <div class="result-value" style="font-size:26px;color:var(--green)" id="manualRRValue">1:0.00</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="helper" style="margin-top:0">Profit Target</div>
+          <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--green);font-weight:500;" id="manualProfit">$0.00</div>
+        </div>
+      </div>
+      <div class="helper" id="manualRRNote"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Results</div>
+    <div class="results-grid">
+      <div class="result-box result-blue"><div class="result-label">Risk Amount</div><div class="result-value" id="riskAmount">$13.22</div><div class="result-sub" id="riskPctDisplay">1% of account</div></div>
+      <div class="result-box result-blue"><div class="result-label">Shares to Buy</div><div class="result-value" id="sharesToBuy">82</div><div class="result-sub">position size</div></div>
+      <div class="result-box result-orange"><div class="result-label">Actual $ Risk</div><div class="result-value" id="actualRisk">$13.12</div><div class="result-sub">after rounding</div></div>
+      <div class="result-box result-orange"><div class="result-label">Cost to Buy</div><div class="result-value" id="positionValue">$89.38</div><div class="result-sub">total to invest</div></div>
+      <div class="result-box result-neutral"><div class="result-label">Risk / Share</div><div class="result-value" id="riskPerShare">$0.16</div><div class="result-sub">per share risked</div></div>
+      <div class="result-box result-green"><div class="result-label">Target Price</div><div class="result-value" id="targetPrice">$1.57</div><div class="result-sub" id="targetDir">▲ take profit</div></div>
+      <div class="result-box result-green"><div class="result-label">Profit</div><div class="result-value" id="profitUSD">$39.36</div><div class="result-sub" id="profitGBP">£29.82</div></div>
+      <div class="result-box result-neutral"><div class="result-label">Reward / Share</div><div class="result-value" id="rewardPerShare">$0.48</div><div class="result-sub"><span class="badge green" id="rrActual">R:R 1:3.00</span></div></div>
+    </div>
+  </div>
+
+  <div id="fullOnly">
+    <div class="card">
+      <div class="card-title">Performance Snapshot</div>
+      <div class="kpis">
+        <div class="kpi"><h3>Executed</h3><div class="big" id="executedCount">0 / 22</div><div class="small">trades vs target</div></div>
+        <div class="kpi"><h3>Win Rate</h3><div class="big" id="winRateDisplay" style="color:var(--green)">0%</div><div class="small" id="winLossBreakdown">0 wins · 0 losses</div></div>
+        <div class="kpi"><h3>Current Streak</h3><div class="big" id="streakDisplay">—</div><div class="small" id="streakNote">No trades logged</div></div>
+        <div class="kpi"><h3>Consistency</h3><div class="big" id="consistencyDisplay" style="color:var(--accent)">0%</div><div class="small">good trades / total trades</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="motivation">
+        <h3>Mindset Coach</h3>
+        <p id="motivationMessage">Log a few trades and CalcURisk will start reflecting your discipline, streaks, and consistency back to you and your dad.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Journal</div>
+      <div class="input-row" style="align-items:flex-start;">
+        <div class="input-label" style="padding-top:11px">Trading Pattern</div>
+        <div style="position:relative;flex:0 0 160px;">
+          <select id="tradePattern">
+            <option value="">— Select —</option>
+            <option>RCT</option>
+            <option>SQUEEZE</option>
+            <option>VWAP Hold</option>
+            <option>Dip and Rip</option>
+            <option>Day 1 Gapper</option>
+            <option>Day 2 Continuation</option>
+            <option>Day 3 Surge</option>
+            <option>Low Float Gapper</option>
+            <option>Multi Day Runner</option>
+            <option>1st Green Day</option>
+            <option>Swing</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="helper" style="margin-bottom:8px">Quick Notes</div>
+        <textarea id="tradeNotes" placeholder="Thesis, market conditions, lessons, or what you want your dad to see..."></textarea>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="helper" style="margin-bottom:8px">Emotion Tag</div>
+        <div class="mini-toggle" style="flex-wrap:wrap">
+          <button class="pill-btn" id="emoDisciplined" onclick="setEmotion('Disciplined')">✅ Disciplined</button>
+          <button class="pill-btn" id="emoFOMO" onclick="setEmotion('FOMO')">😤 FOMO</button>
+          <button class="pill-btn" id="emoRevenge" onclick="setEmotion('Revenge')">😠 Revenge</button>
+          <button class="pill-btn" id="emoBoredom" onclick="setEmotion('Boredom')">😴 Boredom</button>
+          <button class="pill-btn" id="emoHesitant" onclick="setEmotion('Hesitant')">😰 Hesitant</button>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="helper" style="margin-bottom:8px">Market Condition</div>
+        <div class="mini-toggle" style="flex-wrap:wrap">
+          <button class="pill-btn" id="mktTrending" onclick="setMarket('Trending')">📈 Trending</button>
+          <button class="pill-btn" id="mktChoppy" onclick="setMarket('Choppy')">↔️ Choppy</button>
+          <button class="pill-btn" id="mktNews" onclick="setMarket('News-Driven')">📰 News</button>
+          <button class="pill-btn" id="mktPremarket" onclick="setMarket('Pre-Market')">🌅 Pre-Market</button>
+          <button class="pill-btn" id="mktLowvol" onclick="setMarket('Low Volume')">😶 Low Volume</button>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div class="helper" style="margin-bottom:8px">Trade Quality</div>
+        <div class="mini-toggle">
+          <button class="pill-btn" id="qualityGood" onclick="setTradeQuality('Good Trade')">✅ Good Trade</button>
+          <button class="pill-btn" id="qualityBroke" onclick="setTradeQuality('Broke Plan')">❌ Broke Plan</button>
+        </div>
+      </div>
+      <div class="panel-good">
+        <button class="section-toggle" onclick="toggleActualResults()">
+          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:2px;">✏️ Actual Results</div>
+          <span class="line"></span><span id="actualChevron" class="helper" style="margin:0">SHOW ▼</span>
+        </button>
+        <div id="actualResultsBody" class="hidden" style="margin-top:12px;">
+          <div class="input-row"><div class="input-label">Actual Entry</div><div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="actualEntry" step="0.01" min="0" placeholder="0"></div></div>
+          <div class="input-row"><div class="input-label">Actual Exit</div><div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="actualExit" step="0.01" min="0" placeholder="0"></div></div>
+          <div class="input-row"><div class="input-label">Broker FX Fee 0.15%</div><button id="feeToggleBtn" class="mini-btn active" onclick="toggleFee()">ON</button></div>
+          <div id="actualPnLBlock" class="hidden" style="margin-top:10px;">
+            <div id="actualOutcomeBanner" class="badge blue" style="display:flex;justify-content:center;padding:12px;border-radius:10px;font-size:12px;width:100%;">OUTCOME</div>
+            <div class="results-grid" style="margin-top:10px;">
+              <div class="kpi"><h3>Net P&amp;L (USD)</h3><div class="big" id="actualPnLUSD">—</div></div>
+              <div class="kpi"><h3>Net P&amp;L (GBP)</h3><div class="big" id="actualPnLGBP">—</div></div>
+            </div>
+            <div id="feeBreakdownLine" class="helper" style="margin-top:10px"></div>
+            <div id="actualPnLNote" class="helper"></div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="mini-toggle" style="margin-bottom:10px;">
+        <button class="action-btn primary" style="flex:1" onclick="copyTradePlan()">📋 COPY TRADE PLAN</button>
+        <button class="action-btn good" style="flex:1" onclick="shareWithDad()">👨‍👦 SHARE WITH DAD</button>
+      </div>
+      <div class="mini-toggle">
+        <button class="action-btn primary" style="flex:1" onclick="saveTradePlan()">💾 SAVE PLAN</button>
+        <button class="action-btn warn" style="flex:1" onclick="copyAllPlans()">📚 BATCH COPY SAVED</button>
+      </div>
+      <div id="journalConfirm" class="helper" style="color:var(--green);font-weight:700;text-align:center;margin-top:10px;display:none"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Saved Plans</div>
+      <div class="input-row">
+        <div class="input-label">Plan Name</div>
+        <input type="text" id="planName" placeholder="e.g. ONCO scalp" style="padding-left:12px;width:160px">
+      </div>
+      <div class="saved-list" id="savedPlansList"></div>
+      <div id="noPlans" class="helper">No saved plans yet. Save one to start building your shared playbook.</div>
+    </div>
+  </div>
+
+  <div class="footer">⚠ For educational purposes only · Not financial advice<br>Built as a personal trading tool MVP for real-world testing with you and your dad.<br><br>© 2026 CalcURisk. All rights reserved.</div>
+</div>
+
+<script>
+const FX_FALLBACK_GBP = 0.7576;
+const FX_FALLBACK_EUR = 0.9200;
+const CURR_SYMBOLS = {USD:'$', GBP:'£', EUR:'€'};
+const STORAGE_KEY = 'calcurisk_mvp_v1';
+const statsTargetTrades = 22;
+
+const state = {
+  mode: 'fast',
+  direction: 'Long',
+  slMode: 'preset',
+  slPct: 20,
+  currency: 'USD',
+  fxGBP: FX_FALLBACK_GBP,
+  fxEUR: FX_FALLBACK_EUR,
+  emotion: '',
+  market: '',
+  tradeQuality: '',
+  feeOn: true,
+  savedPlans: [],
+  stats: { total:0, wins:0, losses:0, breakeven:0, goodTrades:0, streakType:'', streakCount:0 }
+};
+
+function el(id){ return document.getElementById(id); }
+function fmt(n, d=2){ return Number(n || 0).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function showMessage(text, color='var(--green)'){
+  const n = el('journalConfirm');
+  n.textContent = text;
+  n.style.color = color;
+  n.style.display = 'block';
+  clearTimeout(showMessage._t);
+  showMessage._t = setTimeout(()=>{ n.style.display='none'; }, 2200);
+}
+
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    savedPlans: state.savedPlans,
+    stats: state.stats,
+    currency: state.currency,
+    fxGBP: state.fxGBP,
+    fxEUR: state.fxEUR,
+    mode: state.mode
+  }));
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    state.savedPlans = Array.isArray(data.savedPlans) ? data.savedPlans : [];
+    state.stats = data.stats || state.stats;
+    state.currency = data.currency || state.currency;
+    state.fxGBP = Number(data.fxGBP) || state.fxGBP;
+    state.fxEUR = Number(data.fxEUR) || state.fxEUR;
+    state.mode = data.mode || state.mode;
+  }catch(e){}
+}
+
+function setMode(mode){
+  state.mode = mode;
+  el('modeFastBtn').classList.toggle('active', mode === 'fast');
+  el('modeFullBtn').classList.toggle('active', mode === 'full');
+  el('fullOnly').classList.toggle('hidden', mode !== 'full');
+  saveState();
+}
+
+function setCurrency(curr){
+  state.currency = curr;
+  ['USD','GBP','EUR'].forEach(c => el('curr'+c).classList.toggle('active', c === curr));
+  el('accountCurrSymbol').textContent = CURR_SYMBOLS[curr];
+  updateFxBadge();
+  calculate();
+  saveState();
+}
+
+function updateFxBadge(){
+  const gbp = state.fxGBP || FX_FALLBACK_GBP;
+  const eur = state.fxEUR || FX_FALLBACK_EUR;
+  let label = 'USD→GBP · ' + gbp.toFixed(4);
+  if(state.currency === 'GBP') label = 'GBP base · £1 = $' + (1/gbp).toFixed(4);
+  if(state.currency === 'EUR') label = 'EUR→GBP · ' + (gbp/eur).toFixed(4);
+  el('fxBadge').textContent = label;
+}
+
+function toAcct(usd){
+  if(state.currency === 'GBP') return usd * state.fxGBP;
+  if(state.currency === 'EUR') return usd * state.fxEUR;
+  return usd;
+}
+function toGBP(usd){ return usd * state.fxGBP; }
+
+function setDirection(dir){
+  state.direction = dir;
+  el('btnLong').classList.toggle('active', dir === 'Long');
+  el('btnShort').classList.toggle('active', dir === 'Short');
+  calculate();
+}
+
+function setSLPreset(pct){
+  state.slMode = 'preset';
+  state.slPct = pct;
+  el('stopLossManual').value = '';
+  [5,10,20,25,30].forEach(p => {
+    const btn = el('sl'+p);
+    btn.classList.toggle('active', p === pct);
+    btn.classList.toggle('red', p === pct);
+  });
+  calculate();
+}
+
+function getStopLoss(entry){
+  const manual = parseFloat(el('stopLossManual').value);
+  if(!Number.isNaN(manual) && manual > 0){
+    state.slMode = 'manual';
+    [5,10,20,25,30].forEach(p => { el('sl'+p).classList.remove('active','red'); });
+    return manual;
+  }
+  state.slMode = 'preset';
+  return state.direction === 'Long' ? entry * (1 - state.slPct/100) : entry * (1 + state.slPct/100);
+}
+
+function calculate(){
+  const accountSize = parseFloat(el('accountSize').value) || 0;
+  const riskPct = (parseFloat(el('riskPct').value) || 1) / 100;
+  const entryPrice = parseFloat(el('entryPrice').value) || 0;
+  const stopLoss = getStopLoss(entryPrice);
+  const riskAmountUSD = accountSize / (state.currency === 'USD' ? 1 : state.currency === 'GBP' ? state.fxGBP : state.fxEUR) * riskPct;
+  const riskPerShare = Math.abs(entryPrice - stopLoss);
+  const sharesToBuy = riskPerShare > 0 ? Math.floor(riskAmountUSD / riskPerShare) : 0;
+  const actualRiskUSD = sharesToBuy * riskPerShare;
+  const positionValueUSD = sharesToBuy * entryPrice;
+  const auto3Target = entryPrice > 0 && riskPerShare > 0 ? (state.direction === 'Long' ? entryPrice + riskPerShare*3 : entryPrice - riskPerShare*3) : 0;
+  const hasManualTarget = el('manualTarget').value.trim() !== '' && (parseFloat(el('manualTarget').value) || 0) > 0;
+  const manualTarget = parseFloat(el('manualTarget').value) || 0;
+  const activeTarget = hasManualTarget ? manualTarget : auto3Target;
+  const rewardPerShare = activeTarget > 0 ? Math.abs(activeTarget - entryPrice) : 0;
+  const profitUSD = sharesToBuy * rewardPerShare;
+  const rr = riskPerShare > 0 ? rewardPerShare / riskPerShare : 0;
+
+  el('slGenerated').textContent = entryPrice > 0 ? '$' + fmt(stopLoss) : '—';
+  el('slSubLabel').textContent = state.slMode === 'manual' ? 'manual stop loss' : state.slPct + '% ' + (state.direction === 'Long' ? 'below' : 'above') + ' entry';
+  el('slDistance').textContent = entryPrice > 0 ? '$' + fmt(riskPerShare) : '—';
+
+  const warning = el('directionWarning');
+  warning.textContent = '';
+  if(entryPrice > 0 && stopLoss > 0){
+    if(state.direction === 'Long' && stopLoss >= entryPrice) warning.textContent = '⚠ Stop loss should be below entry for a Long trade.';
+    if(state.direction === 'Short' && stopLoss <= entryPrice) warning.textContent = '⚠ Stop loss should be above entry for a Short trade.';
+  }
+
+  el('riskAmount').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(riskAmountUSD));
+  el('riskPctDisplay').textContent = (riskPct*100).toFixed(1).replace('.0','') + '% of account';
+  el('sharesToBuy').textContent = sharesToBuy.toLocaleString();
+  el('actualRisk').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(actualRiskUSD));
+  el('positionValue').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(positionValueUSD));
+  el('riskPerShare').textContent = '$' + fmt(riskPerShare);
+  el('targetPrice').textContent = activeTarget > 0 ? '$' + fmt(activeTarget) : '—';
+  el('targetDir').textContent = state.direction === 'Long' ? '▲ take profit' : '▼ take profit';
+  el('rewardPerShare').textContent = '$' + fmt(rewardPerShare);
+  el('profitUSD').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(profitUSD));
+  el('profitGBP').textContent = '£' + fmt(toGBP(profitUSD));
+  el('rrActual').textContent = activeTarget > 0 ? 'R:R 1:' + fmt(rr) : 'Enter prices';
+  el('auto3Price').textContent = auto3Target > 0 ? '$' + fmt(auto3Target) : '—';
+  el('auto3Label').textContent = auto3Target > 0 ? (state.direction === 'Long' ? '▲' : '▼') + ' take profit · 3× risk' : 'enter entry & stop first';
+  el('auto3Profit').textContent = auto3Target > 0 ? CURR_SYMBOLS[state.currency] + fmt(toAcct(sharesToBuy * riskPerShare * 3)) : '—';
+
+  if(hasManualTarget && riskPerShare > 0){
+    const rrManual = Math.abs(manualTarget - entryPrice) / riskPerShare;
+    const profitManual = sharesToBuy * Math.abs(manualTarget - entryPrice);
+    el('manualRRBlock').classList.remove('hidden');
+    el('manualRRValue').textContent = '1:' + fmt(rrManual);
+    el('manualProfit').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(profitManual));
+    el('manualRRNote').textContent = rrManual >= 3 ? '✓ Good — meets or beats 3:1' : rrManual >= 2 ? '⚠ Acceptable — below 3:1 but still positive' : '✕ Low reward for the risk taken';
+  } else {
+    el('manualRRBlock').classList.add('hidden');
+  }
+
+  calcActualPnL();
+}
+
+function setEmotion(value){
+  state.emotion = state.emotion === value ? '' : value;
+  [['Disciplined','emoDisciplined'],['FOMO','emoFOMO'],['Revenge','emoRevenge'],['Boredom','emoBoredom'],['Hesitant','emoHesitant']].forEach(([name,id]) => {
+    el(id).classList.toggle('active', state.emotion === name);
+  });
+  updateMotivation();
+}
+
+function setMarket(value){
+  state.market = state.market === value ? '' : value;
+  [['Trending','mktTrending'],['Choppy','mktChoppy'],['News-Driven','mktNews'],['Pre-Market','mktPremarket'],['Low Volume','mktLowvol']].forEach(([name,id]) => {
+    el(id).classList.toggle('active', state.market === name);
+  });
+}
+
+function setTradeQuality(value){
+  state.tradeQuality = state.tradeQuality === value ? '' : value;
+  el('qualityGood').classList.toggle('active', state.tradeQuality === 'Good Trade');
+  el('qualityBroke').classList.toggle('active', state.tradeQuality === 'Broke Plan');
+  updateMotivation();
+}
+
+function toggleActualResults(){
+  const body = el('actualResultsBody');
+  const hidden = body.classList.toggle('hidden');
+  el('actualChevron').textContent = hidden ? 'SHOW ▼' : 'HIDE ▲';
+}
+
+function toggleFee(){
+  state.feeOn = !state.feeOn;
+  el('feeToggleBtn').classList.toggle('active', state.feeOn);
+  el('feeToggleBtn').textContent = state.feeOn ? 'ON' : 'OFF';
+  calcActualPnL();
+}
+
+function calcActualPnL(){
+  const entry = parseFloat(el('actualEntry').value);
+  const exit = parseFloat(el('actualExit').value);
+  const shares = parseInt((el('sharesToBuy').textContent || '0').replace(/[^0-9]/g,'')) || 0;
+  const block = el('actualPnLBlock');
+  if(Number.isNaN(entry) || Number.isNaN(exit) || !shares){ block.classList.add('hidden'); return; }
+  block.classList.remove('hidden');
+  const gross = (state.direction === 'Long' ? exit - entry : entry - exit) * shares;
+  const fees = state.feeOn ? (entry*shares*0.0015 + exit*shares*0.0015) : 0;
+  const pnlUSD = gross - fees;
+  const pnlGBP = pnlUSD * state.fxGBP;
+  const banner = el('actualOutcomeBanner');
+  if(pnlUSD > 0.005){ banner.className = 'badge green'; banner.textContent = '✅ WIN'; }
+  else if(pnlUSD < -0.005){ banner.className = 'badge red'; banner.textContent = '❌ LOSS'; }
+  else { banner.className = 'badge blue'; banner.textContent = '➖ BREAKEVEN'; }
+  el('actualPnLUSD').textContent = (pnlUSD >= 0 ? '+' : '-') + '$' + fmt(Math.abs(pnlUSD));
+  el('actualPnLGBP').textContent = (pnlGBP >= 0 ? '+' : '-') + '£' + fmt(Math.abs(pnlGBP));
+  el('feeBreakdownLine').textContent = state.feeOn ? 'T212 FX fee deducted: -$' + fmt(fees) + ' / -£' + fmt(fees * state.fxGBP) : 'Fee toggle is OFF';
+  const slNum = parseFloat((el('slGenerated').textContent || '').replace(/[^0-9.]/g,'')) || 0;
+  const planEntry = parseFloat(el('entryPrice').value) || 0;
+  const riskPerShare = planEntry > 0 && slNum > 0 ? Math.abs(planEntry - slNum) : 0;
+  if(riskPerShare > 0){
+    const rMult = Math.abs(pnlUSD) / (riskPerShare * shares);
+    el('actualPnLNote').textContent = (pnlUSD >= 0 ? 'Achieved ' : 'Lost ') + fmt(rMult) + 'R';
+  } else {
+    el('actualPnLNote').textContent = shares + ' shares';
+  }
+}
+
+function buildPlanSummary(includeActual=false){
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  const ticker = (el('tickerSymbol').value || '').trim().toUpperCase() || 'TICKER';
+  const entry = parseFloat(el('entryPrice').value) || 0;
+  const stop = (el('slGenerated').textContent || '—').trim();
+  const shares = el('sharesToBuy').textContent.trim();
+  const riskAmt = el('riskAmount').textContent.trim();
+  const target = el('targetPrice').textContent.trim();
+  const profit = el('profitUSD').textContent.trim();
+  const rr = el('rrActual').textContent.trim();
+  const pattern = el('tradePattern').value || 'Not selected';
+  const notes = (el('tradeNotes').value || '').trim() || '—';
+  const quality = state.tradeQuality || 'Not tagged';
+  const emotion = state.emotion || 'Not tagged';
+  const market = state.market || 'Not tagged';
+  let text = [
+    '📊 ' + ticker + ' · ' + pattern + ' · ' + state.direction.toUpperCase(),
+    dateStr + ' ' + timeStr,
+    '────────────────────────',
+    'Balance: ' + CURR_SYMBOLS[state.currency] + (el('accountSize').value || '0'),
+    'Risk: ' + (el('riskPct').value || '0') + '% (' + riskAmt + ')',
+    'Entry: $' + fmt(entry),
+    'Stop: ' + stop,
+    'Shares: ' + shares,
+    'Target: ' + target,
+    'Profit: ' + profit,
+    'R:R: ' + rr,
+    'Emotion: ' + emotion,
+    'Market: ' + market,
+    'Trade Quality: ' + quality,
+    'Notes: ' + notes
+  ].join('\n');
+  if(includeActual){
+    const aEntry = el('actualEntry').value.trim();
+    const aExit = el('actualExit').value.trim();
+    if(aEntry || aExit){
+      text += '\n────────────────────────';
+      text += '\nActual In: ' + (aEntry ? '$' + Number(aEntry).toFixed(2) : '[ ]');
+      text += '\nActual Out: ' + (aExit ? '$' + Number(aExit).toFixed(2) : '[ ]');
+      if(!el('actualPnLBlock').classList.contains('hidden')){
+        text += '\nOutcome: ' + el('actualOutcomeBanner').textContent.trim();
+        text += '\nNet P&L USD: ' + el('actualPnLUSD').textContent.trim();
+        text += '\nNet P&L GBP: ' + el('actualPnLGBP').textContent.trim();
+      }
+    }
+  }
+  return text;
+}
+
+function copyText(text, msg='Copied'){
+  navigator.clipboard.writeText(text).then(()=>showMessage(msg)).catch(()=>{
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showMessage(msg);
+  });
+}
+
+function copyTradePlan(){ copyText(buildPlanSummary(true), '✓ Trade plan copied'); }
+function shareWithDad(){ copyText('👨‍👦 CalcURisk share summary\n\n' + buildPlanSummary(true), '✓ Dad share summary copied'); }
+
+function currentPlanData(){
+  return {
+    id: Date.now().toString(36),
+    name: (el('planName').value || '').trim() || ((el('tickerSymbol').value || 'TRADE').trim().toUpperCase() + ' ' + new Date().toLocaleDateString('en-GB')),
+    ticker: (el('tickerSymbol').value || '').trim().toUpperCase(),
+    direction: state.direction,
+    accountSize: el('accountSize').value || '0',
+    riskPct: el('riskPct').value || '0',
+    entryPrice: el('entryPrice').value || '0',
+    stopLoss: (el('slGenerated').textContent || '').trim(),
+    targetPrice: (el('targetPrice').textContent || '').trim(),
+    shares: (el('sharesToBuy').textContent || '').trim(),
+    riskAmount: (el('riskAmount').textContent || '').trim(),
+    rr: (el('rrActual').textContent || '').trim(),
+    notes: (el('tradeNotes').value || '').trim(),
+    pattern: el('tradePattern').value || '',
+    emotion: state.emotion,
+    market: state.market,
+    quality: state.tradeQuality,
+    createdAt: new Date().toISOString()
+  };
+}
+
+function saveTradePlan(){
+  const plan = currentPlanData();
+  state.savedPlans.unshift(plan);
+  saveState();
+  renderSavedPlans();
+  showMessage('✓ Plan saved');
+  if(!el('planName').value.trim()) el('planName').value = '';
+}
+
+function renderSavedPlans(){
+  const list = el('savedPlansList');
+  list.innerHTML = '';
+  el('noPlans').style.display = state.savedPlans.length ? 'none' : 'block';
+  state.savedPlans.forEach(plan => {
+    const div = document.createElement('div');
+    div.className = 'plan-card';
+    div.innerHTML = `
+      <div class="plan-top">
+        <div>
+          <div class="plan-name">${escapeHtml(plan.name)}</div>
+          <div class="plan-meta">${escapeHtml(plan.ticker || 'No ticker')} · ${escapeHtml(plan.direction)} · ${escapeHtml(plan.createdAt.slice(0,10))}</div>
+          <div class="plan-meta">Entry ${escapeHtml(plan.entryPrice)} · Stop ${escapeHtml(plan.stopLoss)} · Target ${escapeHtml(plan.targetPrice)} · ${escapeHtml(plan.rr)}</div>
+        </div>
+        <span class="badge ${plan.quality === 'Good Trade' ? 'green' : plan.quality === 'Broke Plan' ? 'red' : 'blue'}">${escapeHtml(plan.quality || 'Saved')}</span>
+      </div>
+      <div class="plan-actions">
+        <button class="action-btn primary" onclick="loadPlan('${plan.id}')">LOAD</button>
+        <button class="action-btn good" onclick="copySavedPlan('${plan.id}')">COPY</button>
+        <button class="action-btn warn" onclick="shareSavedPlan('${plan.id}')">SHARE</button>
+        <button class="action-btn danger" onclick="deletePlan('${plan.id}')">DELETE</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function escapeHtml(str){
+  return String(str || '').replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+
+function loadPlan(id){
+  const plan = state.savedPlans.find(p => p.id === id);
+  if(!plan) return;
+  el('planName').value = plan.name || '';
+  el('tickerSymbol').value = plan.ticker || '';
+  setDirection(plan.direction || 'Long');
+  el('accountSize').value = plan.accountSize || '0';
+  el('riskPct').value = plan.riskPct || '1';
+  el('entryPrice').value = plan.entryPrice || '0';
+  el('tradeNotes').value = plan.notes || '';
+  el('tradePattern').value = plan.pattern || '';
+  const stopRaw = parseFloat(String(plan.stopLoss).replace(/[^0-9.]/g,''));
+  if(stopRaw > 0){ el('stopLossManual').value = stopRaw.toFixed(2); state.slMode = 'manual'; }
+  const targetRaw = parseFloat(String(plan.targetPrice).replace(/[^0-9.]/g,''));
+  if(targetRaw > 0){ el('manualTarget').value = targetRaw.toFixed(2); }
+  setEmotion(plan.emotion || '');
+  setMarket(plan.market || '');
+  setTradeQuality(plan.quality || '');
+  calculate();
+  showMessage('✓ Plan loaded');
+}
+
+function copySavedPlan(id){
+  const plan = state.savedPlans.find(p => p.id === id);
+  if(!plan) return;
+  const text = [
+    '📊 ' + (plan.ticker || 'TICKER') + ' · ' + (plan.pattern || 'No pattern') + ' · ' + plan.direction,
+    'Risk: ' + plan.riskPct + '% (' + plan.riskAmount + ')',
+    'Entry: $' + plan.entryPrice,
+    'Stop: ' + plan.stopLoss,
+    'Target: ' + plan.targetPrice,
+    'Shares: ' + plan.shares,
+    'R:R: ' + plan.rr,
+    'Emotion: ' + (plan.emotion || 'Not tagged'),
+    'Market: ' + (plan.market || 'Not tagged'),
+    'Trade Quality: ' + (plan.quality || 'Not tagged'),
+    'Notes: ' + (plan.notes || '—')
+  ].join('\n');
+  copyText(text, '✓ Saved plan copied');
+}
+
+function shareSavedPlan(id){
+  const plan = state.savedPlans.find(p => p.id === id);
+  if(!plan) return;
+  copySavedPlan(id);
+  showMessage('✓ Saved plan copied for sharing');
+}
+
+function deletePlan(id){
+  state.savedPlans = state.savedPlans.filter(p => p.id !== id);
+  saveState();
+  renderSavedPlans();
+  showMessage('✕ Saved plan deleted', 'var(--red)');
+}
+
+function copyAllPlans(){
+  if(!state.savedPlans.length){ showMessage('No saved plans yet', 'var(--accent2)'); return; }
+  const text = state.savedPlans.map((p, i) =>
+    `#${i+1} ${p.name}\n${p.ticker || 'TICKER'} · ${p.direction}\nRisk ${p.riskPct}% (${p.riskAmount})\nEntry $${p.entryPrice} · Stop ${p.stopLoss} · Target ${p.targetPrice}\nShares ${p.shares} · ${p.rr}\nQuality: ${p.quality || 'Not tagged'} · Emotion: ${p.emotion || 'Not tagged'}\nNotes: ${p.notes || '—'}`
+  ).join('\n\n────────────────────────\n\n');
+  copyText(text, '✓ All saved plans copied');
+}
+
+function logTradeResult(){
+  const blockVisible = !el('actualPnLBlock').classList.contains('hidden');
+  if(!blockVisible) return false;
+  const pnl = el('actualPnLUSD').textContent.trim();
+  const val = Number(pnl.replace(/[^0-9.-]/g,''));
+  if(Number.isNaN(val)) return false;
+  state.stats.total += 1;
+  if(val > 0.005){ state.stats.wins += 1; state.stats.streakType = state.stats.streakType === 'W' ? 'W' : 'W'; state.stats.streakCount = state.stats.streakType === 'W' ? state.stats.streakCount + 1 : 1; }
+  else if(val < -0.005){ state.stats.losses += 1; state.stats.streakType = state.stats.streakType === 'L' ? 'L' : 'L'; state.stats.streakCount = state.stats.streakType === 'L' ? state.stats.streakCount + 1 : 1; }
+  else { state.stats.breakeven += 1; state.stats.streakType = ''; state.stats.streakCount = 0; }
+  if(state.tradeQuality === 'Good Trade') state.stats.goodTrades += 1;
+  saveState();
+  renderStats();
+  showMessage('✓ Trade logged into stats');
+  return true;
+}
+
+function renderStats(){
+  const s = state.stats;
+  const winRate = s.total ? (s.wins / s.total) * 100 : 0;
+  const consistency = s.total ? (s.goodTrades / s.total) * 100 : 0;
+  el('executedCount').textContent = s.total + ' / ' + statsTargetTrades;
+  el('winRateDisplay').textContent = fmt(winRate,1).replace('.0','') + '%';
+  el('winLossBreakdown').textContent = s.wins + ' wins · ' + s.losses + ' losses' + (s.breakeven ? ' · ' + s.breakeven + ' BE' : '');
+  el('consistencyDisplay').textContent = fmt(consistency,1).replace('.0','') + '%';
+  if(!s.streakType || !s.streakCount){
+    el('streakDisplay').textContent = '—';
+    el('streakDisplay').style.color = 'var(--muted)';
+    el('streakNote').textContent = 'No streak yet';
+  } else if(s.streakType === 'W'){
+    el('streakDisplay').textContent = '🔥 ' + s.streakCount + 'W';
+    el('streakDisplay').style.color = 'var(--green)';
+    el('streakNote').textContent = s.streakCount + ' win' + (s.streakCount > 1 ? 's' : '') + ' in a row';
+  } else {
+    el('streakDisplay').textContent = '❄️ ' + s.streakCount + 'L';
+    el('streakDisplay').style.color = 'var(--red)';
+    el('streakNote').textContent = s.streakCount + ' loss' + (s.streakCount > 1 ? 'es' : '') + ' in a row';
+  }
+  updateMotivation();
+}
+
+function updateMotivation(){
+  const s = state.stats;
+  const winRate = s.total ? (s.wins / s.total) * 100 : 0;
+  let msg = 'Log a few trades and CalcURisk will start reflecting your discipline, streaks, and consistency back to you and your dad.';
+  if(state.tradeQuality === 'Good Trade' && state.emotion === 'Disciplined') msg = 'You followed your plan. That is the habit to reinforce — not just the outcome.';
+  else if(state.tradeQuality === 'Broke Plan' || state.emotion === 'FOMO' || state.emotion === 'Revenge') msg = 'Discipline slipping. Slow down, shrink risk if needed, and protect the next decision.';
+  else if(s.streakType === 'W' && s.streakCount >= 3) msg = 'Strong run. Stay humble, keep position sizing the same, and do not let a hot streak turn into overconfidence.';
+  else if(s.streakType === 'L' && s.streakCount >= 3) msg = 'Rough patch. Focus on clean setups only. The goal is protecting mindset first, profits second.';
+  else if(s.total >= 5 && winRate >= 50) msg = 'Your edge is starting to show. Keep collecting clean reps and sharing the process, not just the wins.';
+  else if(s.total >= 5 && winRate < 50) msg = 'The data is useful. Review execution, not emotion, and let the sample size grow before judging yourself.';
+  el('motivationMessage').textContent = msg;
+}
+
+function fetchFx(){
+  fetch('https://api.frankfurter.app/latest?from=USD&to=GBP,EUR').then(r=>r.json()).then(d=>{
+    if(d.rates){
+      if(d.rates.GBP) state.fxGBP = Number(d.rates.GBP);
+      if(d.rates.EUR) state.fxEUR = Number(d.rates.EUR);
+      updateFxBadge();
+      calculate();
+      saveState();
+    }
+  }).catch(()=>{ updateFxBadge(); calculate(); });
+}
+
+['accountSize','riskPct','entryPrice','stopLossManual','manualTarget','tickerSymbol','actualEntry','actualExit'].forEach(id => {
+  el(id).addEventListener('input', calculate);
+});
+['tradeNotes','tradePattern'].forEach(id => el(id).addEventListener('input', updateMotivation));
+el('stopLossManual').addEventListener('input', ()=>{
+  if(el('stopLossManual').value.trim() === '') setSLPreset(state.slPct);
+});
+
+window.addEventListener('load', () => {
+  loadState();
+  setMode(state.mode || 'fast');
+  setCurrency(state.currency || 'USD');
+  renderSavedPlans();
+  renderStats();
+  updateFxBadge();
+  calculate();
+  fetchFx();
+});
+
+// Helpful shortcut: logging a trade to stats when user copies a filled plan with actual results.
+const originalCopyTradePlan = copyTradePlan;
+copyTradePlan = function(){
+  originalCopyTradePlan();
+  logTradeResult();
+};
+</script>
+</body>
+</html>
