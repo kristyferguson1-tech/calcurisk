@@ -1,894 +1,1231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>CalcURisk — Personal Coaching MVP</title>
-<meta name="theme-color" content="#0a0e17">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="CalcURisk">
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Rajdhani:wght@600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>CalcURisk Fast Mode</title>
 <style>
-:root {
-  --bg:#0a0e17; --surface:#111827; --surface2:#1a2235; --border:#1e2d45;
-  --accent:#00e5ff; --accent2:#ff6b35; --green:#00ff9d; --red:#ff4444;
-  --text:#f0f4ff; --muted:#8fa8c8; --label:#b8ccdf; --yellow:#ffdc00;
+:root{--bg:#111315;--panel:#191c20;--panel-soft:#20242a;--panel-deep:#15181c;--border:#323842;--text:#f8fafc;--muted:#aab3c2;--accent:#52d3f0;--accent-strong:#2fc1e2;--blue:#7bb6ff;--red:#ff8da2;--green:#71e39a;--amber:#f3bf6d;--shadow:0 20px 50px rgba(0,0,0,.38)}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.screen{height:100dvh;display:flex;justify-content:center;align-items:center;padding:10px}
+.phone{position:relative;width:100%;max-width:440px;height:100%;border:1px solid var(--border);background:linear-gradient(180deg,var(--panel) 0%, #14181d 100%);border-radius:28px;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.top{padding:16px 18px 14px;border-bottom:1px solid var(--border);background:rgba(25,28,32,.96)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.left{display:flex;align-items:center;gap:12px;min-width:0}
+.bolt{width:40px;height:40px;border-radius:16px;border:1px solid rgba(242,181,98,.32);background:rgba(242,181,98,.10);display:flex;align-items:center;justify-content:center;font-size:20px;color:#ffbf6d;flex:0 0 auto}
+.shield{width:46px;height:46px;border-radius:16px;border:1px solid rgba(53,200,232,.26);background:rgba(53,200,232,.07);display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto}
+.shield img{width:26px;height:26px;object-fit:contain;display:none}
+.eyebrow{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#9fe9f8}
+h1{font-size:18px;line-height:1.08;margin:2px 0 0;font-weight:700}
+.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.content{flex:1;padding:10px 12px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.card{background:var(--panel-soft);border:1px solid var(--border);border-radius:18px;padding:10px 12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:5px}
+.value-lg{font-size:24px;font-weight:700;line-height:1}
+.subtle{font-size:11px;color:var(--muted)}
+.segmented{display:inline-flex;gap:4px;padding:4px;background:var(--panel-deep);border:1px solid var(--border);border-radius:14px}
+.segmented button{min-width:32px;height:32px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;padding:0 10px}
+.segmented button.active{background:rgba(53,200,232,.12);color:#9fe9f8}
+.account-edit-wrap{display:flex;align-items:center;gap:8px}
+.account-symbol{font-size:24px;font-weight:700;color:#9fe9f8;line-height:1}
+.account-input{background:none;border:none;color:var(--text);font-size:24px;font-weight:700;line-height:1;min-width:0;padding:0}
+.account-input::-webkit-outer-spin-button,.account-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input{width:100%;background:none;border:none;color:var(--text);font-size:15px;font-weight:600;outline:none;padding:0;font-family:inherit;line-height:1.2}
+select{width:100%;background:none;border:none;color:var(--text);font-size:15px;font-weight:600;outline:none;padding:0;font-family:inherit;line-height:1.2;appearance:none;background-image:linear-gradient(45deg,transparent 50%, #6fe3f6 50%),linear-gradient(135deg,#6fe3f6 50%,transparent 50%);background-position:calc(100% - 14px) calc(50% - 2px), calc(100% - 8px) calc(50% - 2px);background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:24px;cursor:pointer}
+.ticker-row{display:flex;align-items:center;gap:10px}.ticker-row input{flex:1;min-width:0} .tv-btn{width:64px;height:64px;border:1px solid rgba(82,211,240,.38);background:#171c22;border-radius:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:transform .08s ease,border-color .14s ease,background .14s ease,opacity .14s ease;box-shadow:0 0 0 1px rgba(82,211,240,.08),0 10px 24px rgba(0,0,0,.18)}.tv-btn:hover{background:#1c232b;border-color:rgba(82,211,240,.58)}.tv-btn:active{transform:scale(.98)}.tv-btn img{width:38px;height:38px;display:block;border-radius:9px}.tv-btn.is-disabled{opacity:.35}.tv-btn.is-disabled img{filter:grayscale(.18)}
+select option{background:#0f172a;color:#f8fafc}
+.input-shell{background:var(--panel-deep);border:1px solid var(--border);border-radius:14px;padding:8px 10px}
+.input-shell.entry-shell{border-color:rgba(102,179,255,.42)} .input-shell.stop-shell{border-color:rgba(255,127,151,.42)} .input-shell.target-shell{border-color:rgba(97,224,142,.42)}
+.input-shell.entry-shell .label{color:var(--blue)} .input-shell.stop-shell .label{color:var(--red)} .input-shell.target-shell .label{color:var(--green)}
+.input-shell.entry-shell input{color:#dcebff} .input-shell.stop-shell input{color:#ffe3e9} .input-shell.target-shell input{color:#defbe8}
+.input-shell.invalid{border-color:rgba(255,127,151,.85);box-shadow:0 0 0 1px rgba(255,127,151,.18)}
+.mono{font:700 13px ui-monospace,SFMono-Regular,Menlo,monospace}
+.pills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.pill{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);border-radius:16px;padding:8px 10px;background:#09111d;color:#deebf7;font-size:12px;font-weight:600;min-height:56px;text-align:center;width:100%}
+.pill span{font-size:16px;font-weight:700}
+.pill.shares{font-size:14px;border-color:rgba(53,200,232,.30);background:#091623;box-shadow:0 0 0 1px rgba(53,200,232,.10);flex-direction:column;gap:4px}
+.pill.shares span{font-size:20px;line-height:1}
+.pill.green{border-color:rgba(97,224,142,.24);color:#caf8d8;flex-direction:column;gap:4px}
+.pill.rose{border-color:rgba(255,127,151,.24);color:#ffd4dd}
+.pill.risk{font-size:14px;flex-direction:column;gap:4px;line-height:1.1}
+.risk-head{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.risk-main{font-size:16px;font-weight:700;color:#ffd4dd}
+.risk-sub{font-size:11px;color:var(--muted);font-weight:600}
+.status-row{display:flex;gap:8px}
+.status-btn{flex:1;border:1px solid var(--border);border-radius:16px;padding:12px 8px;text-align:center;font-weight:600;cursor:pointer;background:var(--panel-deep);color:var(--text);font-size:20px;line-height:1.08;transition:transform .08s ease,border-color .14s ease,background .14s ease}
+.status-btn:active{transform:scale(.98)} .status-btn:hover{background:#0a1320}
+.status-btn small{display:block;font-size:12px;letter-spacing:.01em;color:#d2dbe7;margin-top:6px;font-weight:550;line-height:1.12}
+.status-btn.active{border-color:var(--accent)} .status-btn.waiting.active{border-color:var(--amber)} .status-btn.executed.active{border-color:var(--green)}
+.output{background:var(--panel-deep);border:1px solid var(--border);border-radius:18px;padding:15px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-line;line-height:1.66;color:#eef3f8;font-size:14px;min-height:182px}
+.last-alert{margin-top:10px;padding-top:10px;border-top:1px solid rgba(159,176,199,.16);font-size:12px;color:#d1dbe7;line-height:1.45}
+.last-alert strong{color:#f8fafc;font-weight:600}
+.bottom{padding:12px 14px 14px;border-top:1px solid var(--border);background:rgba(25,28,32,.96);display:flex;flex-direction:column;gap:10px}
+.cta{background:linear-gradient(180deg,var(--accent),var(--accent-strong));color:#032b33;border:none;border-radius:18px;padding:14px 16px;font-weight:700;cursor:pointer;font-size:16px;letter-spacing:.02em;text-align:center;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;transition:transform .08s ease, box-shadow .12s ease, filter .12s ease;box-shadow:0 6px 18px rgba(53,200,232,.16)}
+.cta.ready{box-shadow:0 0 0 1px rgba(53,200,232,.18),0 10px 22px rgba(53,200,232,.18)} .cta:active{transform:scale(.98);filter:brightness(.97)}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.action{border:1px solid var(--border);background:var(--panel-deep);border-radius:16px;padding:12px;color:var(--text);font-weight:650;cursor:pointer;font-size:14px;line-height:1.15;letter-spacing:.01em;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;transition:transform .08s ease, background .12s ease, border-color .12s ease}
+.action:active{transform:scale(.98)} .action:hover{background:#0a1320;border-color:#2a3b57}
+.output-head{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:10px;text-align:center}
+.toast{position:absolute;left:50%;bottom:98px;transform:translateX(-50%) scale(.97);background:#111827;border:1px solid var(--border);color:#f8fafc;padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .18s ease, transform .18s ease}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.helper{margin-top:6px;padding:8px 10px;border:1px solid rgba(53,200,232,.14);border-radius:12px;background:rgba(53,200,232,.04);font-size:11px;color:#d8e6ef;line-height:1.35}
+.helper strong{color:#f8fafc;font-weight:600}
+.catalyst-strength{margin-top:6px;font-size:12px;font-weight:600;display:inline-block;padding:4px 10px;border-radius:999px;cursor:pointer}
+.catalyst-a{background:rgba(97,224,142,.12);color:#61e08e;border:1px solid rgba(97,224,142,.25)}
+.catalyst-b{background:rgba(242,181,98,.12);color:#f2b562;border:1px solid rgba(242,181,98,.25)}
+.catalyst-c{background:rgba(159,176,199,.12);color:#9fb0c7;border:1px solid rgba(159,176,199,.25)}
+.journal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.journal-tools{display:flex;gap:8px;flex-wrap:wrap}
+.ghost-btn{border:1px solid var(--border);background:var(--panel-deep);border-radius:12px;padding:8px 10px;color:var(--text);font-weight:600;cursor:pointer;font-size:12px}
+.journal-list{display:flex;flex-direction:column;gap:10px;max-height:280px;overflow:auto}
+.journal-empty{padding:14px;border:1px dashed rgba(159,176,199,.22);border-radius:16px;color:var(--muted);font-size:12px;background:rgba(6,12,23,.45)}
+.journal-item{border:1px solid rgba(53,200,232,.10);background:rgba(6,12,23,.45);border-radius:18px;padding:12px}
+.journal-meta{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
+.journal-title,.journal-pattern{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#f8fafc}.journal-icon{display:inline-flex;align-items:center;justify-content:center;min-width:18px}
+.journal-sub{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35}
+.journal-remove{border:0;background:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1}
+.journal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.journal-grid .input-shell{padding:9px 10px}
+.journal-grid .label{font-size:10px;margin-bottom:5px}
+.journal-grid input,.journal-grid select{font-size:14px}
+.journal-grid textarea{width:100%;background:none;border:none;color:var(--text);font-size:14px;font-weight:600;outline:none;padding:0;font-family:inherit;line-height:1.35;resize:vertical;min-height:38px}
+.journal-span-2{grid-column:1 / -1}
+.mini-note{margin-top:8px;font-size:11px;color:var(--muted)}
+.section-toggle-card{padding:10px 12px}
+.section-toggle-btn{width:100%;border:1px solid rgba(53,200,232,.24);background:var(--panel-deep);border-radius:16px;padding:12px 14px;color:var(--text);font-weight:700;cursor:pointer;font-size:14px;line-height:1.2;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Arial,sans-serif;display:flex;align-items:center;justify-content:space-between;gap:12px;transition:transform .08s ease,background .12s ease,border-color .12s ease}
+.section-toggle-btn:hover{background:#0a1320;border-color:#2a3b57}
+.section-toggle-btn:active{transform:scale(.98)}
+.section-toggle-copy{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.section-toggle-copy .label{margin-bottom:0}
+.section-toggle-hint{font-size:12px;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0}
+.section-toggle-icon{font-size:16px;color:#9fe9f8}
+.collapsible-section[hidden]{display:none !important}
+.review-divider-label{display:flex;align-items:center;gap:10px;margin:12px 0 10px;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.review-divider-label::before,.review-divider-label::after{content:'';flex:1;height:1px;background:rgba(159,176,199,.25)}
+
+.trade-tools-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  margin-top:2px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100dvh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
-.app{position:relative;z-index:1;max-width:500px;margin:0 auto;padding:20px 16px 36px}
-.header{margin-bottom:14px}
-.logo-header{display:flex;justify-content:center;align-items:center;padding:4px 0 2px}
-.logo-header img{width:min(100%,320px);height:auto;display:block;filter:drop-shadow(0 0 14px rgba(0,229,255,.26))}
-.logo-note{text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.3px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin-top:14px;box-shadow:0 6px 24px rgba(0,0,0,.18)}
-.card-title{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--accent);font-family:'DM Mono',monospace;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.card-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.input-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.input-row:last-child{margin-bottom:0}
-.input-label{font-size:13px;color:var(--label);font-weight:600;flex:1}
-.input-wrap{position:relative;flex:0 0 auto}
-.input-prefix{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:13px;color:var(--muted)}
-input[type="number"], input[type="text"], textarea, select{
-  background:var(--surface2);border:1.5px solid var(--border);border-radius:10px;color:var(--text);
-  font-family:'DM Mono',monospace;font-size:14px;padding:10px 12px;outline:none;width:132px
+.trade-tools-toggle .label{
+  margin-bottom:2px;
 }
-input[type="number"]{padding-left:26px}
-textarea{width:100%;min-height:88px;resize:vertical;line-height:1.55;padding:12px 14px}
-select{width:100%;padding-right:34px;-webkit-appearance:none;appearance:none}
-input:focus, textarea:focus, select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.08)}
-.mode-toggle,.toggle-row,.mini-toggle{display:flex;gap:6px}
-.toggle-btn,.mini-btn,.sl-preset,.action-btn,.pill-btn{
-  border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:10px;
-  font-family:'DM Mono',monospace;cursor:pointer;touch-action:manipulation;transition:.18s all ease
+
+
+.compact-tools-card{padding:8px 10px}
+#tradeToolsSection{display:flex;flex-direction:column;gap:6px}
+.status-row{gap:6px}
+.status-btn{padding:9px 6px;font-size:18px;border-radius:14px}
+.status-btn small{font-size:11px;margin-top:4px}
+.output{min-height:92px;padding:10px 12px;line-height:1.45;font-size:12px;border-radius:14px}
+.last-alert{margin-top:6px;padding-top:6px;font-size:11px;line-height:1.3}
+.output-head{margin-bottom:6px;gap:4px}
+.journal-head{margin-bottom:6px;align-items:center}
+.journal-tools{gap:6px}
+.ghost-btn{padding:6px 8px;font-size:11px;border-radius:10px}
+.journal-list{max-height:150px;overflow:auto;gap:8px}
+.journal-empty{padding:10px;font-size:11px;border-radius:12px}
+.bottom{padding:8px 10px 10px;gap:8px}
+.actions{gap:6px}
+.action{padding:10px 8px;font-size:13px;border-radius:14px}
+
+
+#ticker{
+  position:relative;
+  z-index:2;
+  cursor:text;
 }
-.toggle-btn{flex:1;padding:10px 8px;font-size:12px}
-.toggle-btn.active{background:rgba(0,229,255,.10);border-color:var(--accent);color:var(--accent)}
-.toggle-btn.long.active{background:rgba(0,255,157,.10);border-color:var(--green);color:var(--green)}
-.toggle-btn.short.active{background:rgba(255,68,68,.10);border-color:var(--red);color:var(--red)}
-.mini-btn,.sl-preset,.pill-btn{padding:7px 10px;font-size:11px}
-.mini-btn.active,.sl-preset.active,.pill-btn.active{background:rgba(0,229,255,.12);color:var(--accent);border-color:var(--accent)}
-.sl-preset.active.red{background:rgba(255,68,68,.12);color:var(--red);border-color:var(--red)}
-.panel-highlight{border-radius:14px;padding:14px;border:2px solid rgba(0,229,255,.32);background:rgba(0,229,255,.08)}
-.panel-warn{border-radius:14px;padding:14px;border:2px solid rgba(255,107,53,.35);background:rgba(255,107,53,.08)}
-.panel-good{border-radius:14px;padding:14px;border:2px solid rgba(0,255,157,.30);background:rgba(0,255,157,.07)}
-.helper{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5}
-.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.result-box{border-radius:14px;padding:14px;text-align:center}
-.result-blue{background:rgba(0,229,255,.08);border:2px solid var(--accent)}
-.result-orange{background:rgba(255,107,53,.08);border:2px solid var(--accent2)}
-.result-green{background:rgba(0,255,157,.08);border:2px solid var(--green)}
-.result-neutral{background:rgba(143,168,200,.06);border:2px solid rgba(184,204,223,.55)}
-.result-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;color:inherit;opacity:.92}
-.result-value{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;letter-spacing:-.8px;line-height:1.05}
-.result-sub{font-family:'DM Mono',monospace;font-size:11px;margin-top:6px;color:inherit;opacity:.88}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-family:'DM Mono',monospace;font-size:11px}
-.badge.green{background:rgba(0,255,157,.12);border:1px solid rgba(0,255,157,.35);color:var(--green)}
-.badge.orange{background:rgba(255,107,53,.12);border:1px solid rgba(255,107,53,.35);color:var(--accent2)}
-.badge.red{background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.35);color:var(--red)}
-.badge.blue{background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.30);color:var(--accent)}
-.section-toggle{width:100%;background:none;border:none;color:inherit;display:flex;align-items:center;gap:10px;cursor:pointer}
-.section-toggle span.line{flex:1;height:1px;background:var(--border)}
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.kpi{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
-.kpi h3{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.kpi .big{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;line-height:1}
-.kpi .small{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
-.motivation{padding:14px;border-radius:12px;background:linear-gradient(135deg,rgba(0,229,255,.08),rgba(0,255,157,.08));border:1px solid rgba(0,229,255,.28)}
-.motivation h3{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-.motivation p{font-size:14px;line-height:1.5}
-.saved-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.plan-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px}
-.plan-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-.plan-name{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);font-weight:600}
-.plan-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5;margin-top:6px}
-.plan-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.action-btn{padding:8px 10px;font-size:11px}
-.action-btn.primary{background:linear-gradient(135deg,var(--accent),var(--green));color:#071018;border:none}
-.action-btn.warn{background:rgba(255,107,53,.10);color:var(--accent2);border-color:rgba(255,107,53,.35)}
-.action-btn.danger{background:rgba(255,68,68,.10);color:var(--red);border-color:rgba(255,68,68,.35)}
-.action-btn.good{background:rgba(0,255,157,.10);color:var(--green);border-color:rgba(0,255,157,.35)}
-.hidden{display:none !important}
-.divider{height:1px;background:var(--border);margin:14px 0}
-.footer{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;line-height:1.7;margin-top:18px}
-@media (max-width:420px){
-  .wordmark h1{font-size:24px}
-  .results-grid,.kpis{grid-template-columns:1fr}
-  input[type="number"],input[type="text"]{width:124px}
+.ticker-row{
+  align-items:center;
 }
+.ticker-row input{
+  position:relative;
+  z-index:2;
+}
+
+
+.compact-top-card{padding:8px 10px !important;border-radius:16px}
+.top{padding:12px 14px 10px}
+.bolt{width:34px;height:34px;border-radius:14px;font-size:18px}
+.shield{width:40px;height:40px;border-radius:14px}
+.eyebrow{font-size:9px}
+h1{font-size:16px;margin:1px 0 0}
+.sub{font-size:11px;margin-top:2px}
+.content{padding:8px 10px;gap:6px}
+.grid2{gap:6px}
+.grid3{gap:6px}
+.label{font-size:9px;letter-spacing:.11em;margin-bottom:4px}
+.account-symbol,.account-input{font-size:22px}
+.input-shell{padding:7px 9px;border-radius:13px}
+.input-shell .label{margin-bottom:4px}
+.pills{gap:6px;margin-top:6px}
+.pill{min-height:50px;padding:6px 8px;font-size:11px}
+.pill.shares span{font-size:18px}
+.pill.green span,.risk-main{font-size:15px}
+.risk-sub{font-size:10px}
+.helper{margin-top:5px;padding:7px 9px;font-size:10px}
+.catalyst-strength{margin-top:4px;font-size:11px;padding:3px 8px}
+.trade-tools-toggle{padding:8px 10px;margin-top:0}
+.trade-tools-toggle .subtle{font-size:10px}
+.tv-btn{width:56px;height:56px}
+.tv-btn img{width:32px;height:32px}
+
+@media (max-width:380px){.grid3{grid-template-columns:1fr}.status-row{flex-direction:column}.grid2{grid-template-columns:1fr}.pills{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="header">
-    <div class="logo-header">
-      <img src="icon.png" alt="CalcURisk">
-    </div>
-    <div class="logo-note">Personal Coaching MVP · You + Dad</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Mode</div>
-    <div class="mode-toggle">
-      <button id="modeFastBtn" class="toggle-btn active" onclick="setMode('fast')">⚡ FAST MODE</button>
-      <button id="modeFullBtn" class="toggle-btn" onclick="setMode('full')">🧩 FULL MODE</button>
-    </div>
-    <div class="helper">Fast Mode keeps only the fields you need for quick execution. Full Mode shows journaling, stats, saved plans, and coaching tools.</div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Account</div>
-    <div class="panel-warn" style="margin-bottom:12px;">
-      <div class="input-row" style="margin-bottom:0;">
-        <div class="input-label">Account Size</div>
-        <div class="input-wrap"><span class="input-prefix" id="accountCurrSymbol">$</span><input type="number" id="accountSize" value="1322" step="1" min="0"></div>
-      </div>
-    </div>
-    <div class="panel-highlight">
-      <div class="input-row" style="margin-bottom:0;">
-        <div class="input-label">Max Risk %</div>
-        <div class="input-wrap"><span class="input-prefix">%</span><input type="number" id="riskPct" value="1" step="0.1" min="0.1" max="100"></div>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div class="input-row" style="margin-bottom:0;align-items:center;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span class="badge blue" id="fxBadge">USD→GBP · 0.7576</span>
-      </div>
-      <div class="mini-toggle">
-        <button class="mini-btn active" id="currUSD" onclick="setCurrency('USD')">$</button>
-        <button class="mini-btn" id="currGBP" onclick="setCurrency('GBP')">£</button>
-        <button class="mini-btn" id="currEUR" onclick="setCurrency('EUR')">€</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Trade Setup</div>
-    <div class="input-row">
-      <div class="input-label">Stock Ticker</div>
-      <input type="text" id="tickerSymbol" placeholder="TICKER" maxlength="10" style="text-transform:uppercase;letter-spacing:2px;font-weight:700;padding-left:12px" />
-    </div>
-    <div class="input-row">
-      <div class="input-label">Trade Direction</div>
-      <div class="toggle-row" style="width:140px;">
-        <button id="btnLong" class="toggle-btn long active" onclick="setDirection('Long')">▲ LONG</button>
-        <button id="btnShort" class="toggle-btn short" onclick="setDirection('Short')">▼ SHORT</button>
-      </div>
-    </div>
-    <div class="panel-highlight" style="margin-top:4px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">📈 Entry Price</div>
-      <div class="input-row" style="margin-bottom:0;">
-        <div class="input-label">Price per Share</div>
-        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="entryPrice" value="1.09" step="0.01" min="0"></div>
-      </div>
-      <div class="helper">The price you plan to buy at.</div>
-    </div>
-    <div class="divider"></div>
-    <div class="card-title">Stop Loss</div>
-    <div class="panel-neutral panel-warn" style="margin-bottom:12px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#ff8f8f;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">🛑 Manual Stop Loss</div>
-      <div class="input-row" style="margin-bottom:0;">
-        <div class="input-label">Stop Loss Price</div>
-        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="stopLossManual" step="0.01" min="0" placeholder="0"></div>
-      </div>
-      <div class="helper">Type your exact stop. Clear it to use the preset below.</div>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;"><div style="flex:1;height:1px;background:var(--border)"></div><div class="helper" style="margin:0">OR USE A % PRESET</div><div style="flex:1;height:1px;background:var(--border)"></div></div>
-    <div class="mini-toggle" style="flex-wrap:wrap">
-      <button id="sl5" class="sl-preset" onclick="setSLPreset(5)">5%</button>
-      <button id="sl10" class="sl-preset" onclick="setSLPreset(10)">10%</button>
-      <button id="sl20" class="sl-preset active red" onclick="setSLPreset(20)">20%</button>
-      <button id="sl25" class="sl-preset" onclick="setSLPreset(25)">25%</button>
-      <button id="sl30" class="sl-preset" onclick="setSLPreset(30)">30%</button>
-    </div>
-    <div class="input-row" style="margin-top:12px;margin-bottom:0;">
-      <div>
-        <div class="result-value" style="font-size:24px;color:var(--red)" id="slGenerated">—</div>
-        <div class="helper" id="slSubLabel">20% below entry</div>
-      </div>
-      <div style="text-align:right;">
-        <div class="helper">Stop Distance</div>
-        <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--label)" id="slDistance">—</div>
-      </div>
-    </div>
-    <div id="directionWarning" class="helper" style="color:var(--accent2);font-weight:600"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Target Price</div>
-    <div class="panel-warn" style="margin-bottom:12px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent2);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">⚡ Suggested Take Profit — 3:1</div>
-      <div class="input-row" style="margin-bottom:0;align-items:flex-end;">
-        <div>
-          <div class="helper" style="margin-top:0">Take Profit Price</div>
-          <div class="result-value" style="font-size:26px;color:var(--accent2)" id="auto3Price">—</div>
-          <div class="helper" id="auto3Label">enter entry &amp; stop first</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="helper" style="margin-top:0">Profit at 3:1</div>
-          <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--green);font-weight:500;" id="auto3Profit">—</div>
-        </div>
-      </div>
-    </div>
-    <div class="panel-good" style="margin-bottom:12px;">
-      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;">🎯 Manual Target Price</div>
-      <div class="input-row" style="margin-bottom:0;">
-        <div class="input-label">Target Price</div>
-        <div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="manualTarget" step="0.01" min="0" placeholder="0"></div>
-      </div>
-      <div class="helper">Type your own target to see your custom R:R instantly.</div>
-    </div>
-    <div id="manualRRBlock" class="hidden panel-good">
-      <div class="input-row" style="margin-bottom:0;align-items:flex-end;">
-        <div>
-          <div class="helper" style="margin-top:0">Your R:R</div>
-          <div class="result-value" style="font-size:26px;color:var(--green)" id="manualRRValue">1:0.00</div>
-        </div>
-        <div style="text-align:right;">
-          <div class="helper" style="margin-top:0">Profit Target</div>
-          <div style="font-family:'DM Mono',monospace;font-size:20px;color:var(--green);font-weight:500;" id="manualProfit">$0.00</div>
-        </div>
-      </div>
-      <div class="helper" id="manualRRNote"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Results</div>
-    <div class="results-grid">
-      <div class="result-box result-blue"><div class="result-label">Risk Amount</div><div class="result-value" id="riskAmount">$13.22</div><div class="result-sub" id="riskPctDisplay">1% of account</div></div>
-      <div class="result-box result-blue"><div class="result-label">Shares to Buy</div><div class="result-value" id="sharesToBuy">82</div><div class="result-sub">position size</div></div>
-      <div class="result-box result-orange"><div class="result-label">Actual $ Risk</div><div class="result-value" id="actualRisk">$13.12</div><div class="result-sub">after rounding</div></div>
-      <div class="result-box result-orange"><div class="result-label">Cost to Buy</div><div class="result-value" id="positionValue">$89.38</div><div class="result-sub">total to invest</div></div>
-      <div class="result-box result-neutral"><div class="result-label">Risk / Share</div><div class="result-value" id="riskPerShare">$0.16</div><div class="result-sub">per share risked</div></div>
-      <div class="result-box result-green"><div class="result-label">Target Price</div><div class="result-value" id="targetPrice">$1.57</div><div class="result-sub" id="targetDir">▲ take profit</div></div>
-      <div class="result-box result-green"><div class="result-label">Profit</div><div class="result-value" id="profitUSD">$39.36</div><div class="result-sub" id="profitGBP">£29.82</div></div>
-      <div class="result-box result-neutral"><div class="result-label">Reward / Share</div><div class="result-value" id="rewardPerShare">$0.48</div><div class="result-sub"><span class="badge green" id="rrActual">R:R 1:3.00</span></div></div>
-    </div>
-  </div>
-
-  <div id="fullOnly">
-    <div class="card">
-      <div class="card-title">Performance Snapshot</div>
-      <div class="kpis">
-        <div class="kpi"><h3>Executed</h3><div class="big" id="executedCount">0 / 22</div><div class="small">trades vs target</div></div>
-        <div class="kpi"><h3>Win Rate</h3><div class="big" id="winRateDisplay" style="color:var(--green)">0%</div><div class="small" id="winLossBreakdown">0 wins · 0 losses</div></div>
-        <div class="kpi"><h3>Current Streak</h3><div class="big" id="streakDisplay">—</div><div class="small" id="streakNote">No trades logged</div></div>
-        <div class="kpi"><h3>Consistency</h3><div class="big" id="consistencyDisplay" style="color:var(--accent)">0%</div><div class="small">good trades / total trades</div></div>
-      </div>
-      <div class="divider"></div>
-      <div class="motivation">
-        <h3>Mindset Coach</h3>
-        <p id="motivationMessage">Log a few trades and CalcURisk will start reflecting your discipline, streaks, and consistency back to you and your dad.</p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Journal</div>
-      <div class="input-row" style="align-items:flex-start;">
-        <div class="input-label" style="padding-top:11px">Trading Pattern</div>
-        <div style="position:relative;flex:0 0 160px;">
-          <select id="tradePattern">
-            <option value="">— Select —</option>
-            <option>RCT</option>
-            <option>SQUEEZE</option>
-            <option>VWAP Hold</option>
-            <option>Dip and Rip</option>
-            <option>Day 1 Gapper</option>
-            <option>Day 2 Continuation</option>
-            <option>Day 3 Surge</option>
-            <option>Low Float Gapper</option>
-            <option>Multi Day Runner</option>
-            <option>1st Green Day</option>
-            <option>Swing</option>
-          </select>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div class="helper" style="margin-bottom:8px">Quick Notes</div>
-        <textarea id="tradeNotes" placeholder="Thesis, market conditions, lessons, or what you want your dad to see..."></textarea>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div class="helper" style="margin-bottom:8px">Emotion Tag</div>
-        <div class="mini-toggle" style="flex-wrap:wrap">
-          <button class="pill-btn" id="emoDisciplined" onclick="setEmotion('Disciplined')">✅ Disciplined</button>
-          <button class="pill-btn" id="emoFOMO" onclick="setEmotion('FOMO')">😤 FOMO</button>
-          <button class="pill-btn" id="emoRevenge" onclick="setEmotion('Revenge')">😠 Revenge</button>
-          <button class="pill-btn" id="emoBoredom" onclick="setEmotion('Boredom')">😴 Boredom</button>
-          <button class="pill-btn" id="emoHesitant" onclick="setEmotion('Hesitant')">😰 Hesitant</button>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div class="helper" style="margin-bottom:8px">Market Condition</div>
-        <div class="mini-toggle" style="flex-wrap:wrap">
-          <button class="pill-btn" id="mktTrending" onclick="setMarket('Trending')">📈 Trending</button>
-          <button class="pill-btn" id="mktChoppy" onclick="setMarket('Choppy')">↔️ Choppy</button>
-          <button class="pill-btn" id="mktNews" onclick="setMarket('News-Driven')">📰 News</button>
-          <button class="pill-btn" id="mktPremarket" onclick="setMarket('Pre-Market')">🌅 Pre-Market</button>
-          <button class="pill-btn" id="mktLowvol" onclick="setMarket('Low Volume')">😶 Low Volume</button>
-        </div>
-      </div>
-      <div style="margin-bottom:12px;">
-        <div class="helper" style="margin-bottom:8px">Trade Quality</div>
-        <div class="mini-toggle">
-          <button class="pill-btn" id="qualityGood" onclick="setTradeQuality('Good Trade')">✅ Good Trade</button>
-          <button class="pill-btn" id="qualityBroke" onclick="setTradeQuality('Broke Plan')">❌ Broke Plan</button>
-        </div>
-      </div>
-      <div class="panel-good">
-        <button class="section-toggle" onclick="toggleActualResults()">
-          <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:2px;">✏️ Actual Results</div>
-          <span class="line"></span><span id="actualChevron" class="helper" style="margin:0">SHOW ▼</span>
-        </button>
-        <div id="actualResultsBody" class="hidden" style="margin-top:12px;">
-          <div class="input-row"><div class="input-label">Actual Entry</div><div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="actualEntry" step="0.01" min="0" placeholder="0"></div></div>
-          <div class="input-row"><div class="input-label">Actual Exit</div><div class="input-wrap"><span class="input-prefix">$</span><input type="number" id="actualExit" step="0.01" min="0" placeholder="0"></div></div>
-          <div class="input-row"><div class="input-label">Broker FX Fee 0.15%</div><button id="feeToggleBtn" class="mini-btn active" onclick="toggleFee()">ON</button></div>
-          <div id="actualPnLBlock" class="hidden" style="margin-top:10px;">
-            <div id="actualOutcomeBanner" class="badge blue" style="display:flex;justify-content:center;padding:12px;border-radius:10px;font-size:12px;width:100%;">OUTCOME</div>
-            <div class="results-grid" style="margin-top:10px;">
-              <div class="kpi"><h3>Net P&amp;L (USD)</h3><div class="big" id="actualPnLUSD">—</div></div>
-              <div class="kpi"><h3>Net P&amp;L (GBP)</h3><div class="big" id="actualPnLGBP">—</div></div>
-            </div>
-            <div id="feeBreakdownLine" class="helper" style="margin-top:10px"></div>
-            <div id="actualPnLNote" class="helper"></div>
-          </div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="mini-toggle" style="margin-bottom:10px;">
-        <button class="action-btn primary" style="flex:1" onclick="copyTradePlan()">📋 COPY TRADE PLAN</button>
-        <button class="action-btn good" style="flex:1" onclick="shareWithDad()">👨‍👦 SHARE WITH DAD</button>
-      </div>
-      <div class="mini-toggle">
-        <button class="action-btn primary" style="flex:1" onclick="saveTradePlan()">💾 SAVE PLAN</button>
-        <button class="action-btn warn" style="flex:1" onclick="copyAllPlans()">📚 BATCH COPY SAVED</button>
-      </div>
-      <div id="journalConfirm" class="helper" style="color:var(--green);font-weight:700;text-align:center;margin-top:10px;display:none"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Saved Plans</div>
-      <div class="input-row">
-        <div class="input-label">Plan Name</div>
-        <input type="text" id="planName" placeholder="e.g. ONCO scalp" style="padding-left:12px;width:160px">
-      </div>
-      <div class="saved-list" id="savedPlansList"></div>
-      <div id="noPlans" class="helper">No saved plans yet. Save one to start building your shared playbook.</div>
-    </div>
-  </div>
-
-  <div class="footer">⚠ For educational purposes only · Not financial advice<br>Built as a personal trading tool MVP for real-world testing with you and your dad.<br><br>© 2026 CalcURisk. All rights reserved.</div>
+<div class="screen"><div class="phone">
+<div class="top"><div class="row"><div class="left"><div class="bolt">⚡</div><div><div class="eyebrow">CalcURisk</div><h1>Fast Mode</h1><div class="sub">Calm, quick risk checks and clean alert copy</div></div></div><div class="shield"><svg id="shieldFallback" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6fe3f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/></svg></div></div></div>
+<div class="content">
+<div class="card compact-top-card"><div class="row" style="margin-bottom:8px;align-items:flex-start;"><div><div class="label">Account</div><div class="subtle">Type once, view in any currency</div></div><div class="segmented" role="group" aria-label="Currency selector"><button type="button" data-currency="USD" onclick="setCurrency('USD', this)">$</button><button type="button" class="active" data-currency="GBP" onclick="setCurrency('GBP', this)">£</button><button type="button" data-currency="EUR" onclick="setCurrency('EUR', this)">€</button></div></div><div class="row" style="align-items:flex-end"><div style="flex:1;min-width:0;"><div class="label">Account Size</div><div class="account-edit-wrap"><span id="accountSymbol" class="account-symbol">£</span><input id="accountSize" class="account-input" value="0.00" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" onfocus="clearDefaultOnFocus(this)" onblur="normalizeFieldValue(this)" /></div></div><div style="text-align:right;flex:0 0 92px"><div class="label">Risk</div><select id="riskPct" style="width:100%"><option value="0.005">0.5%</option><option value="0.01" selected>1%</option><option value="0.015">1.5%</option><option value="0.02">2%</option></select></div></div></div>
+<div class="grid2"><div class="card compact-top-card"><div class="label">Ticker</div><div class="ticker-row" onclick="focusTickerFromRow(event)"><input id="ticker" value="" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" onfocus="if(this.value) this.select();" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z.]/g,''); updateTradingViewButton();" /><button id="tvBtn" class="tv-btn is-disabled" type="button" onclick="openTradingView()" title="Open in TradingView" aria-label="Open in TradingView"><img src="data:image/png;base64,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" alt="TradingView" /></button></div></div><div class="card compact-top-card"><div class="label">Direction</div><div class="segmented" role="group" aria-label="Direction selector"><button type="button" class="active" data-direction="long" onclick="setDirection('long', this)">Long</button><button type="button" data-direction="short" onclick="setDirection('short', this)">Short</button></div></div></div>
+<div class="grid2"><div class="card compact-top-card"><div class="label">Pattern</div><select id="pattern" data-step="pattern" autocomplete="off"></select></div><div class="card compact-top-card"><div class="label">Catalyst</div><select id="catalyst" data-step="catalyst" autocomplete="off"></select><button type="button" id="catalystStrength" class="catalyst-strength catalyst-a" onclick="showCatalystInfo()">A+ Catalyst</button></div></div>
+<div class="grid2"><div class="card compact-top-card"><div class="label">Session</div><select id="session" data-step="session" autocomplete="off"><option value="" selected>Select session</option><option>Pre-Market</option><option>Market Open</option><option>Midday</option><option>Power Hour</option><option>After Hours</option></select></div><div class="card compact-top-card"><div class="label">Stop Default</div><div class="subtle" style="font-size:16px;color:#f8fafc;font-weight:600;line-height:1.3">10% from entry</div><div class="mini-note" id="targetModeHint">Stop auto-fills from entry. Target auto-fills at 3R.</div></div></div>
+<div class="card compact-top-card"><div class="grid3"><div id="entryShell" class="input-shell entry-shell"><div class="label">Entry</div><input id="entry" value="0.00" inputmode="decimal" autocomplete="off" onfocus="clearDefaultOnFocus(this)" /></div><div id="stopShell" class="input-shell stop-shell"><div class="label">Stop</div><input id="stop" value="0.00" inputmode="decimal" autocomplete="off" onfocus="clearDefaultOnFocus(this)" /></div><div id="targetShell" class="input-shell target-shell"><div class="label" id="targetLabel">Target</div><input id="target" value="0.00" inputmode="decimal" autocomplete="off" onfocus="clearDefaultOnFocus(this)" /></div></div><div class="pills"><div class="pill shares">Shares <span id="shares">250</span></div><div class="pill green">R:R <span id="rr">3.0R</span></div><div class="pill rose risk risk-pill"><div class="risk-head">Risk</div><div id="riskAmt" class="risk-main">$16.79</div><div id="riskNative" class="risk-sub">£13.22</div><div id="riskPerShare" class="risk-sub">$0.12/sh</div></div></div><div id="disciplineHint" class="helper"><strong>Ready:</strong> clean setup and risk defined.</div></div>
+<div class="card section-toggle-card">
+  <button id="tradeToolsToggle" class="section-toggle-btn" type="button" onclick="toggleTradeTools()" aria-expanded="false" aria-controls="tradeToolsSection tradeToolsBottom">
+    <span class="section-toggle-copy">
+      <span class="label">Trade Tools</span>
+      <span id="tradeToolsHint" class="section-toggle-hint">Reveal status, alerts, journal and save actions</span>
+    </span>
+    <span id="tradeToolsIcon" class="section-toggle-icon">▾</span>
+  </button>
 </div>
-
+<div id="tradeToolsSection" class="collapsible-section" hidden>
+<div id="statusSection" class="card compact-tools-card"><div class="label">Status</div><div class="status-row"><button class="status-btn active watching" type="button" onclick="setStatus('👁️ Watching', this)">👁️<small>Watching</small></button><button class="status-btn waiting" type="button" onclick="setStatus('⏳ Waiting BO', this)">⏳<small>Waiting BO</small></button><button class="status-btn executed" type="button" onclick="setStatus('🚀 Executed', this)">🚀<small>Executed</small></button></div></div>
+<div class="card compact-tools-card compact-alert-card"><div class="output-head"><div><div class="label" style="margin-bottom:2px">Alert Output</div><div class="subtle"></div></div></div><div id="alert" class="output"></div><div id="lastAlert" class="last-alert">No alert sent yet.</div></div>
+<div class="card compact-tools-card compact-journal-card"><div class="journal-head"><div><div class="label" style="margin-bottom:2px">Journal Queue</div><div class="subtle">Save plans, edit actuals, then batch copy.</div></div><div class="journal-tools"><button class="ghost-btn" type="button" onclick="batchCopyJournal()">Batch Copy</button><button class="ghost-btn" type="button" onclick="clearJournalQueue()">Clear</button></div></div><div id="journalList" class="journal-list"></div></div>
+</div>
+<div class="bottom collapsible-section" id="tradeToolsBottom" hidden><div class="actions"><button id="sendAlertBtn" class="action" type="button" onclick="copyAlert()">⚡ Send</button><button class="action" type="button" onclick="addCurrentToJournal()">Save Plan</button><button class="action" type="button" onclick="resetCurrentPlan()">Reset Plan</button></div></div>
+<div id="toast" class="toast" aria-live="polite"></div>
+</div></div>
 <script>
-const FX_FALLBACK_GBP = 0.7576;
-const FX_FALLBACK_EUR = 0.9200;
-const CURR_SYMBOLS = {USD:'$', GBP:'£', EUR:'€'};
-const STORAGE_KEY = 'calcurisk_mvp_v1';
-const statsTargetTrades = 22;
-
-const state = {
-  mode: 'fast',
-  direction: 'Long',
-  slMode: 'preset',
-  slPct: 20,
-  currency: 'USD',
-  fxGBP: FX_FALLBACK_GBP,
-  fxEUR: FX_FALLBACK_EUR,
-  emotion: '',
-  market: '',
-  tradeQuality: '',
-  feeOn: true,
-  savedPlans: [],
-  stats: { total:0, wins:0, losses:0, breakeven:0, goodTrades:0, streakType:'', streakCount:0 }
-};
-
-function el(id){ return document.getElementById(id); }
-function fmt(n, d=2){ return Number(n || 0).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
-function showMessage(text, color='var(--green)'){
-  const n = el('journalConfirm');
-  n.textContent = text;
-  n.style.color = color;
-  n.style.display = 'block';
-  clearTimeout(showMessage._t);
-  showMessage._t = setTimeout(()=>{ n.style.display='none'; }, 2200);
+const STORAGE_KEY='calcurisk_fast_mode_state_v9';
+const JOURNAL_LIMIT=8;
+const DUPLICATE_SAVE_WINDOW_MS=1200;
+let lastPlanSaveKey='';
+let lastPlanSaveAt=0;
+let statusText='👁️ Watching', currentCurrency='GBP', nativeCurrency='GBP', direction='long', targetMode='price', stopTouched=false, targetTouched=false;
+const currencyMeta={USD:{symbol:'$',rate:1.27,label:'USD'},GBP:{symbol:'£',rate:1,label:'GBP'},EUR:{symbol:'€',rate:1.17,label:'EUR'}};
+const patternGroups=[{label:'⚡ Momentum',options:['🚀 BRB','🚀 Day 1 Gapper','🚀 Day 2 Continuation','🚀 Day 3 Surge','🚀 Dollar Cross Play','🚀 Multiday Runner','🚀 Squeeze']},{label:'🔁 Reversal',options:['🔁 Dip and Rip','🔁 Morning Fader','🔁 Panic Dip Buy']},{label:'📊 Structure',options:['📊 Cup & Handle','📊 Flag Break','📊 Inverted H & S','📊 M/R Break Out','📊 ORB','📊 RCT','📊 Swing','📊 VWAP Hold','📊 VWAP Reclaim']}];
+const catalystGroups=[{label:'⚡ High Impact',options:['Earnings','FDA / Clinical','M&A / Buyout','Major Contract / Deal','Analyst Upgrade / Downgrade','Government / Regulation','PR / Press Release']},{label:'🚀 Momentum Fuel',options:['Gapper Momentum','High Relative Volume','Volume Spike','Breakout','Sector Strength','Sympathy Play','Short Squeeze']},{label:'🔁 Secondary',options:['Guidance','News Pending','Technical Break Only','Previous Day Runner','Social Media / Retail Hype']}];
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toFixed(2), fmtAccount=n=>Number(n).toLocaleString(undefined,{maximumFractionDigits:2});
+const getBaseAccount=()=>{const raw=parseFloat($('accountSize').dataset.baseGbp||'0'); return Number.isFinite(raw)?raw:0;};
+const getRiskPct=()=>{const raw=parseFloat($('riskPct').value||'0.01'); return Number.isFinite(raw)?raw:0.01;};
+const sessionShort=s=>({'Pre-Market':'Pre-M','Market Open':'Open','Midday':'Mid','Power Hour':'PH','After Hours':'AH'})[s]||s;
+const cleanPatternName=p=>p.replace(/^[^\s]+\s/,'');
+function setCurrency(code,el){
+  currentCurrency=code;
+  document.querySelectorAll('[data-currency]').forEach(btn=>btn.classList.toggle('active',btn.dataset.currency===code));
+  const base=getBaseAccount();
+  $('accountSymbol').textContent=currencyMeta[code].symbol;
+  $('accountSize').value=fmtAccount(base*currencyMeta[code].rate);
+  refreshAll(false);
 }
-
-function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    savedPlans: state.savedPlans,
-    stats: state.stats,
-    currency: state.currency,
-    fxGBP: state.fxGBP,
-    fxEUR: state.fxEUR,
-    mode: state.mode
-  }));
-}
-
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return;
-    const data = JSON.parse(raw);
-    state.savedPlans = Array.isArray(data.savedPlans) ? data.savedPlans : [];
-    state.stats = data.stats || state.stats;
-    state.currency = data.currency || state.currency;
-    state.fxGBP = Number(data.fxGBP) || state.fxGBP;
-    state.fxEUR = Number(data.fxEUR) || state.fxEUR;
-    state.mode = data.mode || state.mode;
-  }catch(e){}
-}
-
-function setMode(mode){
-  state.mode = mode;
-  el('modeFastBtn').classList.toggle('active', mode === 'fast');
-  el('modeFullBtn').classList.toggle('active', mode === 'full');
-  el('fullOnly').classList.toggle('hidden', mode !== 'full');
-  saveState();
-}
-
-function setCurrency(curr){
-  state.currency = curr;
-  ['USD','GBP','EUR'].forEach(c => el('curr'+c).classList.toggle('active', c === curr));
-  el('accountCurrSymbol').textContent = CURR_SYMBOLS[curr];
-  updateFxBadge();
-  calculate();
-  saveState();
-}
-
-function updateFxBadge(){
-  const gbp = state.fxGBP || FX_FALLBACK_GBP;
-  const eur = state.fxEUR || FX_FALLBACK_EUR;
-  let label = 'USD→GBP · ' + gbp.toFixed(4);
-  if(state.currency === 'GBP') label = 'GBP base · £1 = $' + (1/gbp).toFixed(4);
-  if(state.currency === 'EUR') label = 'EUR→GBP · ' + (gbp/eur).toFixed(4);
-  el('fxBadge').textContent = label;
-}
-
-function toAcct(usd){
-  if(state.currency === 'GBP') return usd * state.fxGBP;
-  if(state.currency === 'EUR') return usd * state.fxEUR;
-  return usd;
-}
-function toGBP(usd){ return usd * state.fxGBP; }
-
-function setDirection(dir){
-  state.direction = dir;
-  el('btnLong').classList.toggle('active', dir === 'Long');
-  el('btnShort').classList.toggle('active', dir === 'Short');
-  calculate();
-}
-
-function setSLPreset(pct){
-  state.slMode = 'preset';
-  state.slPct = pct;
-  el('stopLossManual').value = '';
-  [5,10,20,25,30].forEach(p => {
-    const btn = el('sl'+p);
-    btn.classList.toggle('active', p === pct);
-    btn.classList.toggle('red', p === pct);
-  });
-  calculate();
-}
-
-function getStopLoss(entry){
-  const manual = parseFloat(el('stopLossManual').value);
-  if(!Number.isNaN(manual) && manual > 0){
-    state.slMode = 'manual';
-    [5,10,20,25,30].forEach(p => { el('sl'+p).classList.remove('active','red'); });
-    return manual;
-  }
-  state.slMode = 'preset';
-  return state.direction === 'Long' ? entry * (1 - state.slPct/100) : entry * (1 + state.slPct/100);
-}
-
-function calculate(){
-  const accountSize = parseFloat(el('accountSize').value) || 0;
-  const riskPct = (parseFloat(el('riskPct').value) || 1) / 100;
-  const entryPrice = parseFloat(el('entryPrice').value) || 0;
-  const stopLoss = getStopLoss(entryPrice);
-  const riskAmountUSD = accountSize / (state.currency === 'USD' ? 1 : state.currency === 'GBP' ? state.fxGBP : state.fxEUR) * riskPct;
-  const riskPerShare = Math.abs(entryPrice - stopLoss);
-  const sharesToBuy = riskPerShare > 0 ? Math.floor(riskAmountUSD / riskPerShare) : 0;
-  const actualRiskUSD = sharesToBuy * riskPerShare;
-  const positionValueUSD = sharesToBuy * entryPrice;
-  const auto3Target = entryPrice > 0 && riskPerShare > 0 ? (state.direction === 'Long' ? entryPrice + riskPerShare*3 : entryPrice - riskPerShare*3) : 0;
-  const hasManualTarget = el('manualTarget').value.trim() !== '' && (parseFloat(el('manualTarget').value) || 0) > 0;
-  const manualTarget = parseFloat(el('manualTarget').value) || 0;
-  const activeTarget = hasManualTarget ? manualTarget : auto3Target;
-  const rewardPerShare = activeTarget > 0 ? Math.abs(activeTarget - entryPrice) : 0;
-  const profitUSD = sharesToBuy * rewardPerShare;
-  const rr = riskPerShare > 0 ? rewardPerShare / riskPerShare : 0;
-
-  el('slGenerated').textContent = entryPrice > 0 ? '$' + fmt(stopLoss) : '—';
-  el('slSubLabel').textContent = state.slMode === 'manual' ? 'manual stop loss' : state.slPct + '% ' + (state.direction === 'Long' ? 'below' : 'above') + ' entry';
-  el('slDistance').textContent = entryPrice > 0 ? '$' + fmt(riskPerShare) : '—';
-
-  const warning = el('directionWarning');
-  warning.textContent = '';
-  if(entryPrice > 0 && stopLoss > 0){
-    if(state.direction === 'Long' && stopLoss >= entryPrice) warning.textContent = '⚠ Stop loss should be below entry for a Long trade.';
-    if(state.direction === 'Short' && stopLoss <= entryPrice) warning.textContent = '⚠ Stop loss should be above entry for a Short trade.';
-  }
-
-  el('riskAmount').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(riskAmountUSD));
-  el('riskPctDisplay').textContent = (riskPct*100).toFixed(1).replace('.0','') + '% of account';
-  el('sharesToBuy').textContent = sharesToBuy.toLocaleString();
-  el('actualRisk').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(actualRiskUSD));
-  el('positionValue').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(positionValueUSD));
-  el('riskPerShare').textContent = '$' + fmt(riskPerShare);
-  el('targetPrice').textContent = activeTarget > 0 ? '$' + fmt(activeTarget) : '—';
-  el('targetDir').textContent = state.direction === 'Long' ? '▲ take profit' : '▼ take profit';
-  el('rewardPerShare').textContent = '$' + fmt(rewardPerShare);
-  el('profitUSD').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(profitUSD));
-  el('profitGBP').textContent = '£' + fmt(toGBP(profitUSD));
-  el('rrActual').textContent = activeTarget > 0 ? 'R:R 1:' + fmt(rr) : 'Enter prices';
-  el('auto3Price').textContent = auto3Target > 0 ? '$' + fmt(auto3Target) : '—';
-  el('auto3Label').textContent = auto3Target > 0 ? (state.direction === 'Long' ? '▲' : '▼') + ' take profit · 3× risk' : 'enter entry & stop first';
-  el('auto3Profit').textContent = auto3Target > 0 ? CURR_SYMBOLS[state.currency] + fmt(toAcct(sharesToBuy * riskPerShare * 3)) : '—';
-
-  if(hasManualTarget && riskPerShare > 0){
-    const rrManual = Math.abs(manualTarget - entryPrice) / riskPerShare;
-    const profitManual = sharesToBuy * Math.abs(manualTarget - entryPrice);
-    el('manualRRBlock').classList.remove('hidden');
-    el('manualRRValue').textContent = '1:' + fmt(rrManual);
-    el('manualProfit').textContent = CURR_SYMBOLS[state.currency] + fmt(toAcct(profitManual));
-    el('manualRRNote').textContent = rrManual >= 3 ? '✓ Good — meets or beats 3:1' : rrManual >= 2 ? '⚠ Acceptable — below 3:1 but still positive' : '✕ Low reward for the risk taken';
-  } else {
-    el('manualRRBlock').classList.add('hidden');
-  }
-
-  calcActualPnL();
-}
-
-function setEmotion(value){
-  state.emotion = state.emotion === value ? '' : value;
-  [['Disciplined','emoDisciplined'],['FOMO','emoFOMO'],['Revenge','emoRevenge'],['Boredom','emoBoredom'],['Hesitant','emoHesitant']].forEach(([name,id]) => {
-    el(id).classList.toggle('active', state.emotion === name);
-  });
-  updateMotivation();
-}
-
-function setMarket(value){
-  state.market = state.market === value ? '' : value;
-  [['Trending','mktTrending'],['Choppy','mktChoppy'],['News-Driven','mktNews'],['Pre-Market','mktPremarket'],['Low Volume','mktLowvol']].forEach(([name,id]) => {
-    el(id).classList.toggle('active', state.market === name);
+function setDirection(next,el){direction=next; document.querySelectorAll('[data-direction]').forEach(btn=>btn.classList.remove('active')); if(el) el.classList.add('active'); applyDefaultStop(false); applyDefaultTarget(false); refreshAll(false);}
+function syncCurrencyButtons(){document.querySelectorAll('[data-currency]').forEach(btn=>btn.classList.toggle('active',btn.dataset.currency===currentCurrency)); $('accountSymbol').textContent=currencyMeta[currentCurrency].symbol;}
+function syncDirectionButtons(){document.querySelectorAll('[data-direction]').forEach(btn=>btn.classList.toggle('active',btn.dataset.direction===direction));}
+function handleAccountInput(){const value=parseFloat($('accountSize').value.toString().replace(/,/g,'')); if(!Number.isFinite(value)) return; nativeCurrency=currentCurrency; $('accountSize').dataset.baseGbp=String(value/currencyMeta[currentCurrency].rate); refreshAll(false);} 
+function parseNumericValue(value){const cleaned=String(value??'').trim().replace(/,/g,''); const num=parseFloat(cleaned); return Number.isFinite(num)?num:null;}
+function formatDecimalInputValue(value, decimals=2){const num=parseNumericValue(value); return num===null?'':num.toFixed(decimals);}
+function formatIntegerInputValue(value){const num=parseNumericValue(value); return num===null?'':String(Math.max(0,Math.round(num)));}
+function formatSignedDecimalInputValue(value, decimals=2){const num=parseNumericValue(value); return num===null?'':num.toFixed(decimals);}
+function normalizeFieldValue(el, kind='decimal'){ if(!el) return; el.value=kind==='integer'?formatIntegerInputValue(el.value):formatDecimalInputValue(el.value,2); }
+function handleDecimalFieldBlur(el,{resetStop=false,resetTarget=false,refresh=true}={}){ normalizeFieldValue(el,'decimal'); if(resetStop) stopTouched=false; if(resetTarget) targetTouched=false; if(refresh) refreshAll(false); }
+function handleJournalFieldInput(id,key,value,type='decimal'){ const nextValue=type==='integer'?formatIntegerInputValue(value):formatDecimalInputValue(value,2); updateJournalItem(id,key,nextValue); }
+function plannerFieldIds(){return ['ticker','pattern','catalyst','session','entry','stop','target','accountSize','riskPct'];}
+function applyPlannerAutocompleteGuards(){
+  plannerFieldIds().forEach(id=>{
+    const el=$(id);
+    if(!el) return;
+    el.setAttribute('autocomplete','off');
+    el.setAttribute('autocorrect','off');
+    el.setAttribute('autocapitalize', id==='ticker' ? 'characters' : 'off');
+    el.setAttribute('spellcheck','false');
+    el.setAttribute('data-lpignore','true');
+    el.setAttribute('data-form-type','other');
+    if(!el.name) el.name=`fresh_${id}`;
   });
 }
-
-function setTradeQuality(value){
-  state.tradeQuality = state.tradeQuality === value ? '' : value;
-  el('qualityGood').classList.toggle('active', state.tradeQuality === 'Good Trade');
-  el('qualityBroke').classList.toggle('active', state.tradeQuality === 'Broke Plan');
-  updateMotivation();
+function wipePlannerDom(options={}){
+  const preserveAccount=options.preserveAccount!==false;
+  const savedBase=preserveAccount?getBaseAccount():0;
+  const savedRisk=preserveAccount?($('riskPct').value||'0.01'):'0.01';
+  $('ticker').value='';
+  populatePatterns('');
+  $('pattern').value='';
+  populateCatalysts('');
+  $('catalyst').value='';
+  $('session').value='';
+  $('entry').value='0.00';
+  $('stop').value='0.00';
+  $('target').value='0.00';
+  $('accountSize').dataset.baseGbp=String(savedBase||0);
+  $('riskPct').value=savedRisk;
+  direction='long';
+  statusText='👁️ Watching';
+  tradeToolsVisible=false;
+  stopTouched=false;
+  targetTouched=false;
+  syncDirectionButtons();
+  syncStatusButtons();
+  syncTradeToolsToggle();
+  setCurrency('GBP');
+  if(!preserveAccount){
+    $('accountSize').value='0.00';
+  }
+  updateTradingViewButton();
+}
+function getOpenSafeJournalQueue(queue){
+  return [];
+}
+function saveFreshNonPlannerState(){
+  const state=loadState()||{};
+  const preservedBase=Number.isFinite(parseFloat(state.baseAccount))?parseFloat(state.baseAccount):getBaseAccount();
+  const preservedRisk=state.riskPct||$('riskPct').value||'0.01';
+  const cleanState={
+    nativeCurrency:'GBP',
+    lastSent:state.lastSent||'',
+    journalQueue:[],
+    tradeToolsVisible:false,
+    stopTouched:false,
+    targetTouched:false,
+    ticker:'',
+    pattern:'',
+    session:'',
+    catalyst:'',
+    entry:'0.00',
+    stop:'0.00',
+    target:'0.00',
+    statusText:'👁️ Watching',
+    currency:'GBP',
+    baseAccount:Number.isFinite(preservedBase)?preservedBase:0,
+    riskPct:preservedRisk,
+    direction:'long',
+    targetMode:'price'
+  };
+  saveState(cleanState);
+}
+function focusAccountSizeOnOpen(){
+  const account=$('accountSize');
+  if(account && document.visibilityState!=='hidden'){
+    requestAnimationFrame(()=>{
+      try{ account.focus({preventScroll:true}); }catch(e){ try{ account.focus(); }catch(_){} }
+      try{ if(typeof account.select==='function') account.select(); }catch(e){}
+    });
+  }
+}
+function forceFreshOpen(){
+  applyPlannerAutocompleteGuards();
+  const savedState=loadState()||{};
+  const preservedBase=Number.isFinite(parseFloat(savedState.baseAccount))?parseFloat(savedState.baseAccount):0;
+  const preservedRisk=savedState.riskPct||'0.01';
+  currentCurrency='GBP';
+  nativeCurrency='GBP';
+  $('accountSize').dataset.baseGbp=String(preservedBase);
+  $('riskPct').value=preservedRisk;
+  wipePlannerDom({preserveAccount:true});
+  saveFreshNonPlannerState();
+  renderJournalQueue();
+  refreshAll(false);
+  focusAccountSizeOnOpen();
+}
+function scheduleFreshOpenPasses(){
+  forceFreshOpen();
+  requestAnimationFrame(forceFreshOpen);
+  setTimeout(forceFreshOpen,0);
+  setTimeout(forceFreshOpen,60);
+  setTimeout(forceFreshOpen,250);
+  setTimeout(forceFreshOpen,800);
 }
 
-function toggleActualResults(){
-  const body = el('actualResultsBody');
-  const hidden = body.classList.toggle('hidden');
-  el('actualChevron').textContent = hidden ? 'SHOW ▼' : 'HIDE ▲';
+function getDefaultStop(entryValue){
+  const entryNum=parseFloat(entryValue||'0');
+  if(!Number.isFinite(entryNum) || entryNum<=0) return '';
+  const stop = direction==='long' ? entryNum*0.90 : entryNum*1.10;
+  return fmt(stop);
 }
-
-function toggleFee(){
-  state.feeOn = !state.feeOn;
-  el('feeToggleBtn').classList.toggle('active', state.feeOn);
-  el('feeToggleBtn').textContent = state.feeOn ? 'ON' : 'OFF';
-  calcActualPnL();
+function applyDefaultStop(force=false){
+  const stopField=$('stop');
+  if(force || !stopTouched || !stopField.value){
+    const next=getDefaultStop($('entry').value);
+    if(next) stopField.value=next;
+  }
 }
-
-function calcActualPnL(){
-  const entry = parseFloat(el('actualEntry').value);
-  const exit = parseFloat(el('actualExit').value);
-  const shares = parseInt((el('sharesToBuy').textContent || '0').replace(/[^0-9]/g,'')) || 0;
-  const block = el('actualPnLBlock');
-  if(Number.isNaN(entry) || Number.isNaN(exit) || !shares){ block.classList.add('hidden'); return; }
-  block.classList.remove('hidden');
-  const gross = (state.direction === 'Long' ? exit - entry : entry - exit) * shares;
-  const fees = state.feeOn ? (entry*shares*0.0015 + exit*shares*0.0015) : 0;
-  const pnlUSD = gross - fees;
-  const pnlGBP = pnlUSD * state.fxGBP;
-  const banner = el('actualOutcomeBanner');
-  if(pnlUSD > 0.005){ banner.className = 'badge green'; banner.textContent = '✅ WIN'; }
-  else if(pnlUSD < -0.005){ banner.className = 'badge red'; banner.textContent = '❌ LOSS'; }
-  else { banner.className = 'badge blue'; banner.textContent = '➖ BREAKEVEN'; }
-  el('actualPnLUSD').textContent = (pnlUSD >= 0 ? '+' : '-') + '$' + fmt(Math.abs(pnlUSD));
-  el('actualPnLGBP').textContent = (pnlGBP >= 0 ? '+' : '-') + '£' + fmt(Math.abs(pnlGBP));
-  el('feeBreakdownLine').textContent = state.feeOn ? 'T212 FX fee deducted: -$' + fmt(fees) + ' / -£' + fmt(fees * state.fxGBP) : 'Fee toggle is OFF';
-  const slNum = parseFloat((el('slGenerated').textContent || '').replace(/[^0-9.]/g,'')) || 0;
-  const planEntry = parseFloat(el('entryPrice').value) || 0;
-  const riskPerShare = planEntry > 0 && slNum > 0 ? Math.abs(planEntry - slNum) : 0;
-  if(riskPerShare > 0){
-    const rMult = Math.abs(pnlUSD) / (riskPerShare * shares);
-    el('actualPnLNote').textContent = (pnlUSD >= 0 ? 'Achieved ' : 'Lost ') + fmt(rMult) + 'R';
-  } else {
-    el('actualPnLNote').textContent = shares + ' shares';
+function getDefaultTarget(entryValue, stopValue){
+  const entryNum=parseFloat(entryValue||'0');
+  const stopNum=parseFloat(stopValue||'0');
+  if(!Number.isFinite(entryNum) || !Number.isFinite(stopNum) || entryNum<=0 || stopNum<=0 || entryNum===stopNum) return '';
+  const riskPerShare=Math.abs(entryNum-stopNum);
+  const target = direction==='long' ? entryNum + (riskPerShare*3) : entryNum - (riskPerShare*3);
+  return fmt(target);
+}
+function applyDefaultTarget(force=false){
+  const targetField=$('target');
+  if(force || !targetTouched || !targetField.value){
+    const next=getDefaultTarget($('entry').value, $('stop').value);
+    if(next) targetField.value=next;
   }
 }
 
-function buildPlanSummary(includeActual=false){
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-  const timeStr = now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-  const ticker = (el('tickerSymbol').value || '').trim().toUpperCase() || 'TICKER';
-  const entry = parseFloat(el('entryPrice').value) || 0;
-  const stop = (el('slGenerated').textContent || '—').trim();
-  const shares = el('sharesToBuy').textContent.trim();
-  const riskAmt = el('riskAmount').textContent.trim();
-  const target = el('targetPrice').textContent.trim();
-  const profit = el('profitUSD').textContent.trim();
-  const rr = el('rrActual').textContent.trim();
-  const pattern = el('tradePattern').value || 'Not selected';
-  const notes = (el('tradeNotes').value || '').trim() || '—';
-  const quality = state.tradeQuality || 'Not tagged';
-  const emotion = state.emotion || 'Not tagged';
-  const market = state.market || 'Not tagged';
-  let text = [
-    '📊 ' + ticker + ' · ' + pattern + ' · ' + state.direction.toUpperCase(),
-    dateStr + ' ' + timeStr,
-    '────────────────────────',
-    'Balance: ' + CURR_SYMBOLS[state.currency] + (el('accountSize').value || '0'),
-    'Risk: ' + (el('riskPct').value || '0') + '% (' + riskAmt + ')',
-    'Entry: $' + fmt(entry),
-    'Stop: ' + stop,
-    'Shares: ' + shares,
-    'Target: ' + target,
-    'Profit: ' + profit,
-    'R:R: ' + rr,
-    'Emotion: ' + emotion,
-    'Market: ' + market,
-    'Trade Quality: ' + quality,
-    'Notes: ' + notes
-  ].join('\n');
-  if(includeActual){
-    const aEntry = el('actualEntry').value.trim();
-    const aExit = el('actualExit').value.trim();
-    if(aEntry || aExit){
-      text += '\n────────────────────────';
-      text += '\nActual In: ' + (aEntry ? '$' + Number(aEntry).toFixed(2) : '[ ]');
-      text += '\nActual Out: ' + (aExit ? '$' + Number(aExit).toFixed(2) : '[ ]');
-      if(!el('actualPnLBlock').classList.contains('hidden')){
-        text += '\nOutcome: ' + el('actualOutcomeBanner').textContent.trim();
-        text += '\nNet P&L USD: ' + el('actualPnLUSD').textContent.trim();
-        text += '\nNet P&L GBP: ' + el('actualPnLGBP').textContent.trim();
-      }
+function focusNextFromMap(currentId, options={}){
+  const order = {
+    pattern: 'catalyst',
+    catalyst: 'session',
+    session: 'entry'
+  };
+  const nextId = order[currentId];
+  if(!nextId) return;
+  const currentEl = $(currentId);
+  const nextEl = $(nextId);
+  if(!nextEl) return;
+
+  const force = !!options.force;
+  const maxAttempts = Number.isFinite(options.maxAttempts) ? options.maxAttempts : 12;
+  const delay = Number.isFinite(options.delay) ? options.delay : 35;
+
+  const tryFocus = (attempt=0)=>{
+    const active = document.activeElement;
+    const currentStillOpen = currentEl && active===currentEl;
+    if(!force && currentStillOpen && attempt < maxAttempts){
+      return setTimeout(()=>tryFocus(attempt+1), delay);
     }
-  }
-  return text;
+    requestAnimationFrame(()=>{
+      try{ nextEl.focus({preventScroll:true}); }
+      catch(e){ try{ nextEl.focus(); }catch(_){} }
+      if(nextId === 'entry'){
+        if(typeof clearDefaultOnFocus === 'function') clearDefaultOnFocus(nextEl);
+        if(typeof nextEl.select === 'function'){
+          try{ nextEl.select(); }catch(e){}
+        }
+      }else if(nextEl.tagName === 'SELECT'){
+        try{ if(typeof nextEl.showPicker === 'function') nextEl.showPicker(); }
+        catch(e){}
+      }
+      if(typeof scrollFieldIntoView === 'function') scrollFieldIntoView(nextEl);
+    });
+  };
+
+  tryFocus(0);
 }
 
-function copyText(text, msg='Copied'){
-  navigator.clipboard.writeText(text).then(()=>showMessage(msg)).catch(()=>{
-    const ta = document.createElement('textarea');
-    ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showMessage(msg);
+function focusNextJournalStep(current){
+  if(!current) return;
+  const container = current.closest('.journal-item');
+  if(!container) return;
+  const order = ['actualEntry','actualExit','actualStop','actualShares','actualPnL','outcome','note'];
+  const currentStep = current.dataset.journalStep || (current.tagName==='TEXTAREA' ? 'note' : '');
+  const idx = order.indexOf(currentStep);
+  if(idx === -1 || idx === order.length - 1) return;
+  const nextStep = order[idx + 1];
+  const nextEl = container.querySelector(`[data-journal-step="${nextStep}"]`);
+  if(!nextEl) return;
+
+  setTimeout(()=>{
+    nextEl.focus();
+    if(nextEl.tagName === 'INPUT'){
+      if(typeof nextEl.select === 'function') nextEl.select();
+    }
+    if(typeof scrollFieldIntoView === 'function'){
+      if(nextStep === 'note' && typeof scrollNotesIntoView === 'function') scrollNotesIntoView(nextEl);
+      else scrollFieldIntoView(nextEl);
+    }
+  }, 20);
+}
+
+function focusTickerFromRow(event){
+  const input=$('ticker');
+  if(!input) return;
+  const target=event && event.target;
+  if(target && (target.id==='tvBtn' || target.closest('#tvBtn'))) return;
+  requestAnimationFrame(()=>{
+    input.focus();
+    if(typeof input.select==='function') input.select();
   });
 }
 
-function copyTradePlan(){ copyText(buildPlanSummary(true), '✓ Trade plan copied'); }
-function shareWithDad(){ copyText('👨‍👦 CalcURisk share summary\n\n' + buildPlanSummary(true), '✓ Dad share summary copied'); }
+function clearDefaultOnFocus(el){
+  if(!el) return;
+  const v = String(el.value ?? '').trim();
+  if(v === '0.00' || v === '0'){
+    el.value = '';
+  }
+}
 
-function currentPlanData(){
+function scrollFieldIntoView(el){
+  if(!el || typeof el.scrollIntoView!=='function') return;
+  requestAnimationFrame(()=>{
+    el.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+  });
+}
+
+function scrollNotesIntoView(el){
+  if(!el) return;
+  const target = el.closest('.input-shell') || el;
+  if(typeof target.scrollIntoView!=='function') return;
+  requestAnimationFrame(()=>{
+    target.scrollIntoView({behavior:'smooth', block:'center', inline:'nearest'});
+  });
+}
+
+function resetCurrentPlan(){
+  $('ticker').value='';
+  $('session').value='';
+  populatePatterns('');
+  $('pattern').value='';
+  populateCatalysts('');
+  $('catalyst').value='';
+  $('entry').value='0.00';
+  $('stop').value='0.00';
+  $('target').value='0.00';
+  stopTouched=false;
+  targetTouched=false;
+  $('riskPct').value='0.01';
+  direction='long';
+  statusText='👁️ Watching';
+  syncDirectionButtons();
+  syncStatusButtons();
+  $('shares').textContent='0';
+  $('rr').textContent='0.0R';
+  $('riskAmt').textContent='$0.00';
+  $('riskNative').textContent=`${currencyMeta[nativeCurrency].symbol}0.00`;
+  $('riskPerShare').textContent='$0.00/share';
+  $('alert').innerText='Waiting for valid setup…';
+  renderDisciplineHint('<strong>Start:</strong> add ticker, pattern, catalyst, session, entry and stop to build your plan.','info');
+  refreshAll(false);
+  showToast('Plan cleared');
+}
+
+function populatePatterns(preferred){const select=$('pattern'), current=(preferred!==undefined?preferred:select.value)||''; const placeholder=`<option value="" ${current===''?'selected':''}>Select pattern</option>`; select.innerHTML=placeholder+patternGroups.map(g=>`<optgroup label="${g.label}">${g.options.map(p=>`<option ${p===current?'selected':''}>${p}</option>`).join('')}</optgroup>`).join('');}
+function populateCatalysts(preferred){const select=$('catalyst'), current=(preferred!==undefined?preferred:select.value)||''; const placeholder=`<option value="" ${current===''?'selected':''}>Select catalyst</option>`; select.innerHTML=placeholder+catalystGroups.map(g=>`<optgroup label="${g.label}">${g.options.map(c=>`<option ${c===current?'selected':''}>${c}</option>`).join('')}</optgroup>`).join('');}
+function getCatalystStrength(catalyst){const high=['Earnings','FDA / Clinical','M&A / Buyout','Major Contract / Deal','Analyst Upgrade / Downgrade','Government / Regulation','PR / Press Release']; const mid=['Gapper Momentum','High Relative Volume','Volume Spike','Breakout','Sector Strength','Sympathy Play','Short Squeeze']; if(high.includes(catalyst)) return 'A+'; if(mid.includes(catalyst)) return 'B'; return 'C';}
+function catalystLabel(catalyst){return `${getCatalystStrength(catalyst)} Catalyst: ${catalyst}`;}
+function buildAlert(status,ticker,pattern,session,entry,stop,target,shares,rr,catalyst){return `${status}
+${ticker} — ${pattern} (${session})
+${direction==='long'?'Long':'Short'}
+
+🔵 E: ${fmt(entry)}
+🔴 SL: ${fmt(stop)}
+🟢 TP: ${fmt(target)}
+
+${shares} shares | ${rr}R
+${catalystLabel(catalyst)}`;}
+function buildWhatsApp(status,ticker,pattern,session,entry,stop,target,shares,rr,catalyst){return `${status}
+${ticker} — ${pattern} (${sessionShort(session)})
+${direction==='long'?'Long':'Short'}
+
+🔵 E: ${fmt(entry)}
+🔴 SL: ${fmt(stop)}
+🟢 TP: ${fmt(target)}
+
+${shares} shares | ${rr}R
+${catalystLabel(catalyst)}`;}
+function buildJournal(status,ticker,pattern,session,entry,stop,target,shares,rr,catalyst,riskAmount){return `${status} — ${ticker}
+${pattern} (${session})
+${direction==='long'?'Long':'Short'}
+
+🔵 E: ${fmt(entry)}
+🔴 SL: ${fmt(stop)}
+🟢 TP: ${fmt(target)}
+
+Position: ${shares} shares
+R:R: ${rr}R
+Risk: ${currencyMeta[currentCurrency].symbol}${fmt(riskAmount*currencyMeta[currentCurrency].rate)}
+
+${catalystLabel(catalyst)}`;}
+const saveState=state=>{try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}};
+const loadState=()=>{try{const raw=localStorage.getItem(STORAGE_KEY); return raw?JSON.parse(raw):null;}catch(e){return null;}};
+function getJournalQueue(){const state=loadState()||{}; return Array.isArray(state.journalQueue)?state.journalQueue:[];}
+function saveJournalQueue(queue, options={}){const state=loadState()||{}; state.journalQueue=queue.slice(0,JOURNAL_LIMIT); saveState(state); if(options.render!==false) renderJournalQueue();}
+function formatStamp(ts){const d=new Date(ts||Date.now()); return d.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});}
+let tradeToolsVisible=false;
+function syncTradeToolsToggle(){
+  const section=$('tradeToolsSection');
+  const bottom=$('tradeToolsBottom');
+  const btn=$('tradeToolsToggle');
+  const icon=$('tradeToolsIcon');
+  const hint=$('tradeToolsHint');
+  if(section) section.hidden=!tradeToolsVisible;
+  if(bottom) bottom.hidden=!tradeToolsVisible;
+  if(btn) btn.setAttribute('aria-expanded', tradeToolsVisible ? 'true' : 'false');
+  if(icon) icon.textContent=tradeToolsVisible ? '▴' : '▾';
+  if(hint) hint.textContent=tradeToolsVisible ? 'Hide status, alerts, journal and save actions' : 'Reveal status, alerts, journal and save actions';
+}
+function toggleTradeTools(){
+  tradeToolsVisible=!tradeToolsVisible;
+  syncTradeToolsToggle();
+  const state=loadState()||{};
+  state.tradeToolsVisible=tradeToolsVisible;
+  saveState(state);
+  if(tradeToolsVisible){
+    requestAnimationFrame(()=>{
+      const target=$('statusSection')||$('tradeToolsSection');
+      if(target && typeof target.scrollIntoView==='function'){
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  }
+}
+function getCurrentPlanValidation(){ const ticker=($('ticker').value||'').trim(); const pattern=$('pattern').value||''; const catalyst=$('catalyst').value||''; const session=$('session').value||''; const entry=parseFloat($('entry').value||'0'); const stop=parseFloat($('stop').value||'0'); let target=parseFloat($('target').value||'0'); if(!ticker) return {ok:false,message:'<strong>Check:</strong> add a ticker before saving or sending.',kind:'bad'}; if(!pattern) return {ok:false,message:'<strong>Check:</strong> select a pattern before saving or sending.',kind:'bad'}; if(!catalyst) return {ok:false,message:'<strong>Check:</strong> select a catalyst before saving or sending.',kind:'bad'}; if(!session) return {ok:false,message:'<strong>Check:</strong> select a session before saving or sending.',kind:'bad'}; if((!Number.isFinite(target) || target<=0) && Number.isFinite(entry) && Number.isFinite(stop) && entry>0 && stop>0 && entry!==stop){ const next=getDefaultTarget($('entry').value, $('stop').value); if(next){ $('target').value=next; target=parseFloat(next); if(!targetTouched) refreshAll(false); } } const baseValidation=validate(entry,stop,target); if(!baseValidation.ok) return baseValidation; if(direction==='long' && target<=entry) return {ok:false,message:'<strong>Check:</strong> target should sit above entry for a long.',kind:'bad'}; if(direction==='short' && target>=entry) return {ok:false,message:'<strong>Check:</strong> target should sit below entry for a short.',kind:'bad'}; return {ok:true}; }
+function currentSetupIsValid(){return getCurrentPlanValidation().ok;}
+function buildCurrentJournalPlan(){
+  if(!currentSetupIsValid()) return null;
+  const now=Date.now();
+  const ticker=($('ticker').value||'').toUpperCase().trim()||'TICKER';
+  const entry=parseFloat($('entry').value||'0');
+  const stop=parseFloat($('stop').value||'0');
+  const targetInput=parseFloat($('target').value||'0');
+  const target=targetInput;
+  const shares=parseInt(($('shares').textContent||'0').replace(/[^0-9]/g,''),10)||0;
+  const rr=parseFloat(($('rr').textContent||'0').replace(/[^0-9.\-]/g,''))||0;
+  const catalyst=$('catalyst').value||'No catalyst';
   return {
-    id: Date.now().toString(36),
-    name: (el('planName').value || '').trim() || ((el('tickerSymbol').value || 'TRADE').trim().toUpperCase() + ' ' + new Date().toLocaleDateString('en-GB')),
-    ticker: (el('tickerSymbol').value || '').trim().toUpperCase(),
-    direction: state.direction,
-    accountSize: el('accountSize').value || '0',
-    riskPct: el('riskPct').value || '0',
-    entryPrice: el('entryPrice').value || '0',
-    stopLoss: (el('slGenerated').textContent || '').trim(),
-    targetPrice: (el('targetPrice').textContent || '').trim(),
-    shares: (el('sharesToBuy').textContent || '').trim(),
-    riskAmount: (el('riskAmount').textContent || '').trim(),
-    rr: (el('rrActual').textContent || '').trim(),
-    notes: (el('tradeNotes').value || '').trim(),
-    pattern: el('tradePattern').value || '',
-    emotion: state.emotion,
-    market: state.market,
-    quality: state.tradeQuality,
-    createdAt: new Date().toISOString()
+    id:`j_${now}_${Math.random().toString(36).slice(2,7)}`,
+    createdAt:now,
+    plannedAt:now,
+    sentAt:null,
+    executedAt:statusText.includes('Executed') ? now : null,
+    ticker,
+    direction,
+    pattern:cleanPatternName($('pattern').value),
+    session:$('session').value,
+    catalyst,
+    grade:getCatalystStrength(catalyst),
+    plannedEntry:fmt(entry),
+    plannedStop:fmt(stop),
+    plannedTarget:fmt(target),
+    plannedShares:String(shares),
+    plannedRR:rr.toFixed(1),
+    plannedRiskPct:(getRiskPct()*100).toFixed(1),
+    actualEntry:'',
+    actualStop:'',
+    actualExit:'',
+    actualShares:'',
+    actualPnL:'',
+    outcome:'Planned',
+    note:''
   };
 }
-
-function saveTradePlan(){
-  const plan = currentPlanData();
-  state.savedPlans.unshift(plan);
-  saveState();
-  renderSavedPlans();
-  showMessage('✓ Plan saved');
-  if(!el('planName').value.trim()) el('planName').value = '';
+function escapeHtml(str){
+  return String(str??'').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 }
+function renderJournalQueue(){
+  const list=$('journalList');
+  if(!list) return;
+  const queue=getJournalQueue();
+  if(!queue.length){
+    list.innerHTML='<div class="journal-empty">No saved plans yet. Tap <strong>Save Plan</strong> to queue the current trade, then edit the actual fill, exit, size and P/L before batch copy.</div>';
+    return;
+  }
+  list.innerHTML=queue.map(item=>{
+    const plannedTime=item.plannedAt?formatStamp(item.plannedAt):'—';
+    const sentTime=item.sentAt?formatStamp(item.sentAt):'—';
+    const executedTime=item.executedAt?formatStamp(item.executedAt):'—';
+    const nativeSymbol=currencyMeta[nativeCurrency].symbol;
+    return `<div class="journal-item">
+  <div class="journal-meta">
+    <div>
+      <div class="journal-title"><span class="journal-icon">📝</span><span>${escapeHtml(item.ticker)} — ${item.direction==='long'?'Long':'Short'}</span></div>
+      <div class="journal-pattern"><span class="journal-icon">📊</span><span>${escapeHtml(item.pattern)} (${escapeHtml(sessionShort(item.session)||item.session||'—')})</span></div>
+      <div class="journal-sub">Planned ${escapeHtml(item.plannedEntry)} / ${escapeHtml(item.plannedStop)} / ${escapeHtml(item.plannedTarget)} · ${escapeHtml(item.plannedShares)} shares · ${escapeHtml(item.plannedRR)}R · ${escapeHtml(item.grade)} Catalyst: ${escapeHtml(item.catalyst)}<br>Session: ${escapeHtml(item.session||'—')}<br>🕒 Planned: ${plannedTime} · 📨 Sent: ${sentTime} · 🚀 Executed: ${executedTime}</div>
+    </div>
+    <button class="journal-remove" tabindex="-1" type="button" onclick="removeJournalItem('${item.id}')">×</button>
+  </div>
+  <div class="journal-grid">
+    <div class="input-shell entry-shell"><div class="label">Actual Entry</div><input class="journal-nav" data-journal-id="${item.id}" data-journal-key="actualEntry" data-journal-step="actualEntry" data-journal-type="decimal" value="${escapeHtml(item.actualEntry||'')}" inputmode="decimal" enterkeyhint="next" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onfocus="handleJournalFieldFocus(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" /></div>
+    <div class="input-shell target-shell"><div class="label">Actual Exit / TP</div><input class="journal-nav" data-journal-id="${item.id}" data-journal-key="actualExit" data-journal-step="actualExit" data-journal-type="decimal" value="${escapeHtml(item.actualExit||'')}" inputmode="decimal" enterkeyhint="next" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onfocus="handleJournalFieldFocus(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" /></div>
+    <div class="input-shell stop-shell"><div class="label">Actual Stop</div><input class="journal-nav" data-journal-id="${item.id}" data-journal-key="actualStop" data-journal-step="actualStop" data-journal-type="decimal" value="${escapeHtml(item.actualStop||'')}" inputmode="decimal" enterkeyhint="next" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onfocus="handleJournalFieldFocus(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" /></div>
+    <div class="input-shell"><div class="label">Actual Shares</div><input class="journal-nav" data-journal-id="${item.id}" data-journal-key="actualShares" data-journal-step="actualShares" data-journal-type="integer" value="${escapeHtml(item.actualShares||'')}" inputmode="numeric" enterkeyhint="next" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onfocus="handleJournalFieldFocus(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" /></div>
+    <div class="input-shell"><div class="label">Actual P/L (${nativeSymbol})</div><input class="journal-nav" data-journal-id="${item.id}" data-journal-key="actualPnL" data-journal-step="actualPnL" data-journal-type="decimalSigned" value="${escapeHtml(item.actualPnL||'')}" inputmode="decimal" enterkeyhint="next" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onfocus="handleJournalFieldFocus(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" /></div>
+    <div class="input-shell"><div class="label">Outcome</div><select class="journal-nav" data-journal-id="${item.id}" data-journal-key="outcome" data-journal-step="outcome" data-journal-type="text" onfocus="handleJournalSelectFocus(this)" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onchange="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)">${['Planned','Win','Loss','Partial','Scratch'].map(opt=>`<option ${opt===item.outcome?'selected':''}>${opt}</option>`).join('')}</select></div>
+    <div class="review-divider-label journal-span-2">Trade Review Notes</div>
+    <div class="input-shell journal-span-2"><div class="label">Notes</div><textarea class="journal-nav" data-journal-id="${item.id}" data-journal-key="note" data-journal-step="note" data-journal-type="text" enterkeyhint="done" oninput="persistJournalField(this,{render:false}); queueJournalAutoAdvance(this)" onkeydown="handleJournalFieldKeyNav(event,this)" onkeyup="handleJournalFieldKeyNav(event,this)" onkeypress="handleJournalFieldKeyNav(event,this)" onblur="persistJournalField(this,{render:false})" placeholder="Actual fill, scale-out, take profit notes">${escapeHtml(item.note||'')}</textarea></div>
+  </div>
+  <div class="helper" style="margin-top:10px">${buildJournalActualStats(item)}</div>
+</div>`;
+  }).join('');
+}
+function addCurrentToJournal(){
+  const check=getCurrentPlanValidation();
+  if(!check.ok){
+    renderDisciplineHint(check.message,check.kind||'bad');
+    return showToast('Fix plan first');
+  }
+  const plan=buildCurrentJournalPlan();
+  if(!plan) return showToast('Fix plan first');
 
-function renderSavedPlans(){
-  const list = el('savedPlansList');
-  list.innerHTML = '';
-  el('noPlans').style.display = state.savedPlans.length ? 'none' : 'block';
-  state.savedPlans.forEach(plan => {
-    const div = document.createElement('div');
-    div.className = 'plan-card';
-    div.innerHTML = `
-      <div class="plan-top">
-        <div>
-          <div class="plan-name">${escapeHtml(plan.name)}</div>
-          <div class="plan-meta">${escapeHtml(plan.ticker || 'No ticker')} · ${escapeHtml(plan.direction)} · ${escapeHtml(plan.createdAt.slice(0,10))}</div>
-          <div class="plan-meta">Entry ${escapeHtml(plan.entryPrice)} · Stop ${escapeHtml(plan.stopLoss)} · Target ${escapeHtml(plan.targetPrice)} · ${escapeHtml(plan.rr)}</div>
-        </div>
-        <span class="badge ${plan.quality === 'Good Trade' ? 'green' : plan.quality === 'Broke Plan' ? 'red' : 'blue'}">${escapeHtml(plan.quality || 'Saved')}</span>
-      </div>
-      <div class="plan-actions">
-        <button class="action-btn primary" onclick="loadPlan('${plan.id}')">LOAD</button>
-        <button class="action-btn good" onclick="copySavedPlan('${plan.id}')">COPY</button>
-        <button class="action-btn warn" onclick="shareSavedPlan('${plan.id}')">SHARE</button>
-        <button class="action-btn danger" onclick="deletePlan('${plan.id}')">DELETE</button>
-      </div>`;
-    list.appendChild(div);
+  const queue=getJournalQueue();
+  const saveKey=[plan.ticker,plan.direction,plan.pattern,plan.session,plan.plannedEntry,plan.plannedStop,plan.plannedTarget,plan.plannedShares].join('|');
+  const now=Date.now();
+
+  if(saveKey===lastPlanSaveKey && (now-lastPlanSaveAt)<DUPLICATE_SAVE_WINDOW_MS){
+    return showToast('Plan already saved');
+  }
+
+  lastPlanSaveKey=saveKey;
+  lastPlanSaveAt=now;
+  saveJournalQueue([plan,...queue].slice(0,JOURNAL_LIMIT));
+  showToast('Plan saved');
+}
+function updateJournalItem(id,key,value,options={}){
+  const queue=getJournalQueue().map(item=>item.id===id?{...item,[key]:value}:item);
+  saveJournalQueue(queue, options);
+}
+function persistJournalField(el, options={}){
+  if(!el) return;
+  const id=el.dataset.journalId;
+  const key=el.dataset.journalKey;
+  const type=el.dataset.journalType||'text';
+  if(!id || !key) return;
+  let value=el.value;
+  if(type==='decimal') value=formatDecimalInputValue(value,2);
+  else if(type==='decimalSigned') value=formatSignedDecimalInputValue(value,2);
+  else if(type==='integer') value=formatIntegerInputValue(value);
+  updateJournalItem(id,key,value,{render:options.render!==false});
+}
+function journalStepLooksComplete(el){
+  if(!el || !el.dataset) return false;
+  const step=el.dataset.journalStep||'';
+  const value=String(el.value??'').trim();
+  if(!value) return false;
+  if(step==='actualShares') return /^\d+$/.test(value);
+  if(['actualEntry','actualExit','actualStop'].includes(step)) return /^-?\d+\.\d{2}$/.test(value);
+  if(step==='actualPnL') return /^[-+]?\d+\.\d{2}$/.test(value);
+  if(step==='outcome') return value !== '';
+  return false;
+}
+function queueJournalAutoAdvance(el){
+  if(!journalStepLooksComplete(el)) return;
+  clearTimeout(el._journalAdvanceTimer);
+  const step=(el.dataset && el.dataset.journalStep)||'';
+  const eventType=(window.event && window.event.type) || '';
+  if(step==='actualShares' && !['blur','change'].includes(eventType)) return;
+  el._journalAdvanceTimer=setTimeout(()=>{
+    persistJournalField(el,{render:false});
+    focusNextJournalStep(el);
+  }, step==='outcome' ? 20 : (step==='actualShares' ? 120 : 90));
+}
+function handleJournalFieldInput(id,key,value,type='decimal', render=true){
+  const nextValue=type==='integer'?formatIntegerInputValue(value):type==='decimal'?formatDecimalInputValue(value,2):value;
+  updateJournalItem(id,key,nextValue,{render});
+}
+function handleJournalFieldFocus(el){
+  if(!el) return;
+  requestAnimationFrame(()=>{ try{ if(typeof el.select==='function') el.select(); }catch(e){} });
+}
+function handleJournalSelectFocus(el){
+  if(!el) return;
+  requestAnimationFrame(()=>{
+    try{ if(typeof el.showPicker==='function') el.showPicker(); }
+    catch(e){}
   });
 }
-
-function escapeHtml(str){
-  return String(str || '').replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+function handleJournalFieldKeyNav(event, el){
+  if(!(event.key==='Enter' || event.key==='Tab')) return;
+  if(event.key==='Enter' && el.tagName==='TEXTAREA' && event.shiftKey) return;
+  const eventType=event.type||'';
+  if(eventType==='keyup' || eventType==='keypress'){
+    if(el.dataset && el.dataset.navHandledKey===event.key) return;
+  }
+  if(el.dataset) el.dataset.navHandledKey=event.key;
+  setTimeout(()=>{ try{ if(el && el.dataset) delete el.dataset.navHandledKey; }catch(e){} },0);
+  event.preventDefault();
+  event.stopPropagation();
+  persistJournalField(el,{render:false});
+  const card=el.closest('.journal-item');
+  const allFields=[...(card||document).querySelectorAll('.journal-nav')].filter(node=>!node.disabled && node.offsetParent!==null);
+  const index=allFields.indexOf(el);
+  const step=event.shiftKey ? -1 : 1;
+  const next=allFields[index+step];
+  if(next){
+    next.focus({preventScroll:true});
+    if(next.tagName==='SELECT'){
+      requestAnimationFrame(()=>{
+        try{ if(typeof next.showPicker==='function') next.showPicker(); }
+        catch(e){ try{ next.click(); }catch(_){} }
+      });
+    }else if(typeof next.select==='function'){
+      requestAnimationFrame(()=>{ try{ next.select(); }catch(e){} });
+    }
+  }else{
+    saveJournalQueue(getJournalQueue());
+    if(typeof el.blur==='function') el.blur();
+  }
 }
+document.addEventListener('keydown',function(event){
+  const active=document.activeElement;
+  if(!active || !active.classList || !active.classList.contains('journal-nav')) return;
+  if(event.key==='Tab' || (event.key==='Enter' && !(active.tagName==='TEXTAREA' && event.shiftKey))){
+    handleJournalFieldKeyNav(event, active);
+  }
+}, true);
 
-function loadPlan(id){
-  const plan = state.savedPlans.find(p => p.id === id);
-  if(!plan) return;
-  el('planName').value = plan.name || '';
-  el('tickerSymbol').value = plan.ticker || '';
-  setDirection(plan.direction || 'Long');
-  el('accountSize').value = plan.accountSize || '0';
-  el('riskPct').value = plan.riskPct || '1';
-  el('entryPrice').value = plan.entryPrice || '0';
-  el('tradeNotes').value = plan.notes || '';
-  el('tradePattern').value = plan.pattern || '';
-  const stopRaw = parseFloat(String(plan.stopLoss).replace(/[^0-9.]/g,''));
-  if(stopRaw > 0){ el('stopLossManual').value = stopRaw.toFixed(2); state.slMode = 'manual'; }
-  const targetRaw = parseFloat(String(plan.targetPrice).replace(/[^0-9.]/g,''));
-  if(targetRaw > 0){ el('manualTarget').value = targetRaw.toFixed(2); }
-  setEmotion(plan.emotion || '');
-  setMarket(plan.market || '');
-  setTradeQuality(plan.quality || '');
-  calculate();
-  showMessage('✓ Plan loaded');
+document.addEventListener('keyup',function(event){
+  const active=document.activeElement;
+  if(!active || !active.classList || !active.classList.contains('journal-nav')) return;
+  if(event.key==='Tab' || (event.key==='Enter' && !(active.tagName==='TEXTAREA' && event.shiftKey))){
+    handleJournalFieldKeyNav(event, active);
+  }
+}, true);
+
+document.addEventListener('change',function(event){
+  const el=event.target;
+  if(!el || !el.classList || !el.classList.contains('journal-nav')) return;
+  const step=(el.dataset && el.dataset.journalStep)||'';
+  if(!['actualEntry','actualExit','actualStop','actualShares','actualPnL','outcome'].includes(step)) return;
+  if(!journalStepLooksComplete(el)) return;
+  setTimeout(()=>{ focusNextJournalStep(el); }, 20);
+}, true);
+function getCurrentPlanMatchKey(){
+  return {
+    ticker: ($('ticker').value||'').toUpperCase().trim(),
+    pattern: cleanPatternName($('pattern').value||''),
+    session: $('session').value||'',
+    direction
+  };
 }
-
-function copySavedPlan(id){
-  const plan = state.savedPlans.find(p => p.id === id);
-  if(!plan) return;
-  const text = [
-    '📊 ' + (plan.ticker || 'TICKER') + ' · ' + (plan.pattern || 'No pattern') + ' · ' + plan.direction,
-    'Risk: ' + plan.riskPct + '% (' + plan.riskAmount + ')',
-    'Entry: $' + plan.entryPrice,
-    'Stop: ' + plan.stopLoss,
-    'Target: ' + plan.targetPrice,
-    'Shares: ' + plan.shares,
-    'R:R: ' + plan.rr,
-    'Emotion: ' + (plan.emotion || 'Not tagged'),
-    'Market: ' + (plan.market || 'Not tagged'),
-    'Trade Quality: ' + (plan.quality || 'Not tagged'),
-    'Notes: ' + (plan.notes || '—')
-  ].join('\n');
-  copyText(text, '✓ Saved plan copied');
+function markLatestJournalEvent(eventKey){
+  const queue=getJournalQueue();
+  if(!queue.length) return;
+  const match=getCurrentPlanMatchKey();
+  for(let i=0;i<queue.length;i++){
+    const item=queue[i];
+    if(item.ticker===match.ticker && item.pattern===match.pattern && item.session===match.session && item.direction===match.direction){
+      if(!item[eventKey]) item[eventKey]=Date.now();
+      break;
+    }
+  }
+  saveJournalQueue(queue,{render:false});
 }
-
-function shareSavedPlan(id){
-  const plan = state.savedPlans.find(p => p.id === id);
-  if(!plan) return;
-  copySavedPlan(id);
-  showMessage('✓ Saved plan copied for sharing');
+function removeJournalItem(id){saveJournalQueue(getJournalQueue().filter(item=>item.id!==id)); showToast('Removed');}
+function clearJournalQueue(){saveJournalQueue([]); showToast('Journal cleared');}
+function getJournalActualMetrics(item){
+  const entry=parseNumericValue(item.actualEntry);
+  const stop=parseNumericValue(item.actualStop);
+  const exit=parseNumericValue(item.actualExit);
+  const shares=parseNumericValue(item.actualShares);
+  const nativeRate=currencyMeta[nativeCurrency].rate||1;
+  const manualPnLNative=parseNumericValue(item.actualPnL);
+  const manualPnLBase=manualPnLNative!==null ? (manualPnLNative/nativeRate) : null;
+  const riskPerShare=(entry!==null && stop!==null)?Math.abs(entry-stop):null;
+  const actualRiskBase=(riskPerShare!==null && shares!==null)?riskPerShare*Math.max(0,Math.round(shares)):null;
+  const rewardPerShare=(entry!==null && exit!==null)?(item.direction==='short' ? (entry-exit) : (exit-entry)):null;
+  const grossPnLBaseCalc=(rewardPerShare!==null && shares!==null)?rewardPerShare*Math.max(0,Math.round(shares)):null;
+  const grossPnLBase=manualPnLBase!==null ? manualPnLBase : grossPnLBaseCalc;
+  const realizedR=(riskPerShare && grossPnLBase!==null && shares!==null)?(grossPnLBase/(riskPerShare*Math.max(1,Math.round(shares)))):null;
+  return {entry,stop,exit,shares,riskPerShare,actualRiskBase,grossPnLBase,grossPnLBaseCalc,manualPnLNative,manualPnLBase,rewardPerShare,realizedR};
 }
-
-function deletePlan(id){
-  state.savedPlans = state.savedPlans.filter(p => p.id !== id);
-  saveState();
-  renderSavedPlans();
-  showMessage('✕ Saved plan deleted', 'var(--red)');
+function formatCopyCurrency(amount, symbol, {signed=false, pad=0}={}){
+  if(!Number.isFinite(amount)) return `${symbol}0.00`;
+  const absText=Math.abs(amount).toFixed(2).padStart(pad,' ');
+  const signText=signed ? (amount<0 ? '- ' : amount>0 ? '+ ' : '') : '';
+  return `${signText}${symbol}${absText}`;
 }
-
-function copyAllPlans(){
-  if(!state.savedPlans.length){ showMessage('No saved plans yet', 'var(--accent2)'); return; }
-  const text = state.savedPlans.map((p, i) =>
-    `#${i+1} ${p.name}\n${p.ticker || 'TICKER'} · ${p.direction}\nRisk ${p.riskPct}% (${p.riskAmount})\nEntry $${p.entryPrice} · Stop ${p.stopLoss} · Target ${p.targetPrice}\nShares ${p.shares} · ${p.rr}\nQuality: ${p.quality || 'Not tagged'} · Emotion: ${p.emotion || 'Not tagged'}\nNotes: ${p.notes || '—'}`
-  ).join('\n\n────────────────────────\n\n');
-  copyText(text, '✓ All saved plans copied');
+function dualCurrencyParts(baseAmount, signed=false, pad=0){
+  if(baseAmount===null || !Number.isFinite(baseAmount)) return null;
+  const usdAmount=baseAmount*currencyMeta['USD'].rate;
+  const nativeAmount=baseAmount*currencyMeta[nativeCurrency].rate;
+  return {
+    usd:formatCopyCurrency(usdAmount, currencyMeta['USD'].symbol, {signed, pad}),
+    native:formatCopyCurrency(nativeAmount, currencyMeta[nativeCurrency].symbol, {signed, pad})
+  };
 }
-
-function logTradeResult(){
-  const blockVisible = !el('actualPnLBlock').classList.contains('hidden');
-  if(!blockVisible) return false;
-  const pnl = el('actualPnLUSD').textContent.trim();
-  const val = Number(pnl.replace(/[^0-9.-]/g,''));
-  if(Number.isNaN(val)) return false;
-  state.stats.total += 1;
-  if(val > 0.005){ state.stats.wins += 1; state.stats.streakType = state.stats.streakType === 'W' ? 'W' : 'W'; state.stats.streakCount = state.stats.streakType === 'W' ? state.stats.streakCount + 1 : 1; }
-  else if(val < -0.005){ state.stats.losses += 1; state.stats.streakType = state.stats.streakType === 'L' ? 'L' : 'L'; state.stats.streakCount = state.stats.streakType === 'L' ? state.stats.streakCount + 1 : 1; }
-  else { state.stats.breakeven += 1; state.stats.streakType = ''; state.stats.streakCount = 0; }
-  if(state.tradeQuality === 'Good Trade') state.stats.goodTrades += 1;
-  saveState();
-  renderStats();
-  showMessage('✓ Trade logged into stats');
+function dualCurrencyText(baseAmount, signed=false){
+  const parts=dualCurrencyParts(baseAmount,signed,0);
+  if(!parts) return '—';
+  return `${parts.usd} <span style="color:var(--muted)">(${parts.native})</span>`;
+}
+function getPerformanceStats(item){
+  const m=getJournalActualMetrics(item);
+  const shares=Number.isFinite(m.shares)?Math.max(0,Math.round(m.shares)):null;
+  const plannedEntry=parseNumericValue(item.plannedEntry);
+  const plannedTarget=parseNumericValue(item.plannedTarget);
+  const actualMovePct=(Number.isFinite(m.entry) && Number.isFinite(m.exit) && m.entry!==0)
+    ? Math.abs(((item.direction==='short' ? (m.entry-m.exit) : (m.exit-m.entry))/m.entry)*100)
+    : null;
+  const expectedPerShare=(plannedEntry!==null && plannedTarget!==null)
+    ? Math.abs(plannedTarget-plannedEntry)
+    : null;
+  const expectedPnLBase=(expectedPerShare!==null && shares!==null)?expectedPerShare*shares:null;
+  const actualPnLBase=Number.isFinite(m.grossPnLBase)?m.grossPnLBase:null;
+  const gapBase=(expectedPnLBase!==null && actualPnLBase!==null)?(actualPnLBase-expectedPnLBase):null;
+  return {actualMovePct, expectedPnLBase, actualPnLBase, gapBase};
+}
+function getExecutionLabel(gapBase){
+  if(!Number.isFinite(gapBase)) return '';
+  const gapNative=gapBase*(currencyMeta[nativeCurrency].rate||1);
+  if(gapNative < -0.5) return '⚠️ Left profit on table';
+  if(gapNative > 0.5) return '🔥 Overperformed plan';
+  return '✅ Executed as planned';
+}
+function buildJournalActualStats(item){
+  const m=getJournalActualMetrics(item);
+  const perf=getPerformanceStats(item);
+  const riskText=dualCurrencyText(m.actualRiskBase,false);
+  const pnlText=buildPnLCurrencyLine(item);
+  const rText=Number.isFinite(m.realizedR)?`${m.realizedR.toFixed(2)}R`:'—';
+  const moveText=Number.isFinite(perf.actualMovePct)?`${perf.actualMovePct.toFixed(2)}% move`:'—';
+  const gapParts=dualCurrencyParts(perf.gapBase,true,0);
+  const gapText=gapParts?`${gapParts.native} (${gapParts.usd.replace('-', '−')})`:'—';
+  const executionLabel=getExecutionLabel(perf.gapBase);
+  const outcome=item.outcome||'Planned';
+  return `<strong>Actual:</strong> Risk ${riskText} · P/L ${pnlText.replace('💵 ','')} · Result ${rText} · ${moveText} · Gap ${gapText} · ${executionLabel||'—'} · Outcome ${outcome}`;
+}
+function calculateRealizedR(item){const m=getJournalActualMetrics(item); return Number.isFinite(m.realizedR)?m.realizedR:null;}
+function buildOutcomeLine(realizedR){ if(!Number.isFinite(realizedR)) return '➖ Outcome pending'; if(realizedR>0) return `📈 Profit +${realizedR.toFixed(2)}R`; if(realizedR<0) return `📉 Loss ${realizedR.toFixed(2)}R`; return '➖ Scratch 0.00R'; }
+function buildPnLCurrencyLine(item){
+  const m=getJournalActualMetrics(item);
+  const outcome=(item.outcome||'Planned').toLowerCase();
+  const hasExecution=Number.isFinite(m.entry) && Number.isFinite(m.exit) && Number.isFinite(m.shares) && Math.round(m.shares)>0;
+  if(!hasExecution && m.manualPnLNative===null) return outcome!=='planned' ? '💵 Pending' : '💵 Pending';
+  const parts=dualCurrencyParts(m.grossPnLBase,true,0);
+  if(!parts) return '💵 Pending';
+  return `💵 ${parts.usd} = ${parts.native}`;
+}
+function getTradeResultForSummary(item){
+  const m=getJournalActualMetrics(item);
+  const outcome=(item.outcome||'').toLowerCase().trim();
+  const hasExecution=Number.isFinite(m.entry) && Number.isFinite(m.exit) && Number.isFinite(m.shares) && Math.round(m.shares)>0;
+  if(!hasExecution || outcome==='planned') return 'pending';
+  const pnl=Number.isFinite(m.grossPnLBase)?m.grossPnLBase:null;
+  if(!Number.isFinite(pnl)) return 'pending';
+  if(pnl>0) return 'win';
+  if(pnl<0) return 'loss';
+  return 'scratch';
+}
+function getOutcomeMismatchFlag(item){
+  const m=getJournalActualMetrics(item);
+  const outcome=String(item.outcome||'').trim();
+  const normalized=outcome.toLowerCase();
+  const hasExecution=Number.isFinite(m.entry) && Number.isFinite(m.exit) && Number.isFinite(m.shares) && Math.round(m.shares)>0;
+  if(!hasExecution || !normalized || normalized==='planned') return '';
+  const pnl=Number.isFinite(m.grossPnLBase)?m.grossPnLBase:null;
+  if(!Number.isFinite(pnl)) return '';
+  const pnlResult=pnl>0?'win':pnl<0?'loss':'scratch';
+  if(normalized===pnlResult) return '';
+  return `⚠️ Outcome mismatch: marked ${outcome}, but P/L reads ${pnlResult[0].toUpperCase()}${pnlResult.slice(1)}`;
+}
+function syncOutcomeToPnL(item){
+  if(!item || typeof item!=='object') return false;
+  const m=getJournalActualMetrics(item);
+  const hasExecution=Number.isFinite(m.entry) && Number.isFinite(m.exit) && Number.isFinite(m.shares) && Math.round(m.shares)>0;
+  if(!hasExecution) return false;
+  const pnl=Number.isFinite(m.grossPnLBase)?m.grossPnLBase:null;
+  if(!Number.isFinite(pnl)) return false;
+  const nextOutcome=pnl>0?'Win':pnl<0?'Loss':'Scratch';
+  if(item.outcome===nextOutcome) return false;
+  item.outcome=nextOutcome;
   return true;
 }
+function buildSummaryEncouragement(winRate,wins,total,netR){ if(!total) return 'Small step today — save a few completed trades and the summary will appear here.'; if(netR>0 && winRate>=70) return `Strong work today — ${wins} wins from ${total} and you stayed in control.`; if(netR>0) return `Good work — ${wins} wins from ${total}. Solid process beats one perfect trade.`; if(winRate>=50) return `Steady day — keep stacking clean execution and let the edge do the work.`; return 'Keep going — one calm, well-managed session is how consistency gets built.'; }
+function buildDaySummaryBlock(queue){ const completed=queue.filter(item=>getTradeResultForSummary(item)!=='pending'); const results=completed.map(getTradeResultForSummary); const total=results.length; const wins=results.filter(r=>r==='win').length; const winRate=total?Math.round((wins/total)*100):0; const netR=completed.reduce((sum,item)=>{ const r=calculateRealizedR(item); return sum + (Number.isFinite(r)?r:0); },0); const netPnLBase=completed.reduce((sum,item)=>{ const m=getJournalActualMetrics(item); return sum + (Number.isFinite(m.grossPnLBase)?m.grossPnLBase:0); },0); const pnlParts=dualCurrencyParts(netPnLBase,true,0); const icon=total? (netR>0 ? '🌤️' : netR<0 ? '🌘' : '🌙') : '🗓️'; const encouragement=buildSummaryEncouragement(winRate,wins,total,netR); return `${icon} Trading Day Summary
 
-function renderStats(){
-  const s = state.stats;
-  const winRate = s.total ? (s.wins / s.total) * 100 : 0;
-  const consistency = s.total ? (s.goodTrades / s.total) * 100 : 0;
-  el('executedCount').textContent = s.total + ' / ' + statsTargetTrades;
-  el('winRateDisplay').textContent = fmt(winRate,1).replace('.0','') + '%';
-  el('winLossBreakdown').textContent = s.wins + ' wins · ' + s.losses + ' losses' + (s.breakeven ? ' · ' + s.breakeven + ' BE' : '');
-  el('consistencyDisplay').textContent = fmt(consistency,1).replace('.0','') + '%';
-  if(!s.streakType || !s.streakCount){
-    el('streakDisplay').textContent = '—';
-    el('streakDisplay').style.color = 'var(--muted)';
-    el('streakNote').textContent = 'No streak yet';
-  } else if(s.streakType === 'W'){
-    el('streakDisplay').textContent = '🔥 ' + s.streakCount + 'W';
-    el('streakDisplay').style.color = 'var(--green)';
-    el('streakNote').textContent = s.streakCount + ' win' + (s.streakCount > 1 ? 's' : '') + ' in a row';
+✅ ${wins} wins from ${total}
+📊 Win rate: ${winRate}%
+
+${pnlParts?`💵 Day P/L : ${pnlParts.usd} = ${pnlParts.native.replace(/^[-+]\s*/, '')}`:'💵 Day P/L : —'}
+
+👏 ${encouragement}`; }
+function formatTradeHeader(index,item){
+  const prefix=`${index}. `;
+  const spacer=' '.repeat(prefix.length);
+  return `${prefix}📝 ${item.ticker} — ${item.direction==='long'?'Long':'Short'}
+${spacer}📊 ${item.pattern} (${sessionShort(item.session)})`;
+}
+function buildBatchJournalText(){
+  const queue=getJournalQueue();
+  const completed=queue.filter(item=>getTradeResultForSummary(item)!=='pending');
+  if(!completed.length) return '';
+  const summary=buildDaySummaryBlock(completed.slice().reverse());
+  const divider='────────────────────';
+  const body=completed.slice().reverse().map((item,idx)=>{
+    const pnlLine=buildPnLCurrencyLine(item);
+    const perf=getPerformanceStats(item);
+    const plannedStamp=item.plannedAt?formatStamp(item.plannedAt):'—';
+    const sentStamp=item.sentAt?formatStamp(item.sentAt):'—';
+    const executedStamp=item.executedAt?formatStamp(item.executedAt):'—';
+    syncOutcomeToPnL(item);
+    const outcomeText=item.outcome||'Planned';
+    const mismatchLine=getOutcomeMismatchFlag(item);
+    const moveLine=Number.isFinite(perf.actualMovePct)?`📈 Move: ${perf.actualMovePct.toFixed(2)}%`:'📈 Move: —';
+    const gapParts=dualCurrencyParts(perf.gapBase,true,0);
+    const gapLine=gapParts?`🎯 Gap: ${gapParts.native} (${gapParts.usd.replace('-', '−')})`:'🎯 Gap: —';
+    const executionLabel=getExecutionLabel(perf.gapBase);
+    const notePrompt=`🗒️ Notes
+
+• Setup reasoning:
+• Market context:
+• Execution (followed plan?):
+• What went well:
+• What I’d do differently:
+• Lesson learned:`;
+    const noteBlock=(item.note&&String(item.note).trim())
+      ? `🗒️ Notes
+
+${String(item.note).trim()}`
+      : notePrompt;
+    const actualSharesText=item.actualShares?`${item.actualShares} ${Number(item.actualShares||0)===1?'share':'shares'}`:'— shares';
+    return `${formatTradeHeader(idx+1,item)}
+
+🎯 Planned
+
+🔵 E ${item.plannedEntry} → 🔴 SL ${item.plannedStop} → 🟢 TP ${item.plannedTarget}
+
+📦 ${item.plannedShares} ${Number(item.plannedShares||0)===1?'share':'shares'} | ${item.plannedRR}R
+🕒 Planned: ${plannedStamp}
+📨 Sent: ${sentStamp}
+🚀 Executed: ${executedStamp}
+
+──────────────
+
+✅ Actual
+
+🔵 E ${item.actualEntry||'—'} → 🔴 SL ${item.actualStop||'—'} → 🟢 TP ${item.actualExit||'—'}
+
+📦 ${actualSharesText}
+${pnlLine}
+${moveLine}
+${gapLine}
+${executionLabel||'✅ Executed as planned'}
+🏁 Outcome: ${outcomeText}
+${mismatchLine?mismatchLine+'\n':''}
+⚡ ${item.grade} — ${item.catalyst}
+
+──────── Trade Review ────────
+
+${noteBlock}`;
+  }).join(`
+
+${divider}
+
+`);
+  return `${summary}
+
+${divider}
+
+${body}`;
+}
+function commitFocusedJournalField(){ const active=document.activeElement; if(active && active.dataset && active.dataset.journalId){ persistJournalField(active,{render:true}); if(typeof active.blur==='function') active.blur(); } }
+async function batchCopyJournal(){try{commitFocusedJournalField(); const text=buildBatchJournalText(); if(!text) return showToast('No journal plans saved'); await navigator.clipboard.writeText(text); if(navigator.vibrate) navigator.vibrate(10); const queue=getJournalQueue(); const completed=queue.filter(item=>getTradeResultForSummary(item)!=='pending'); const results=completed.map(getTradeResultForSummary); const wins=results.filter(r=>r==='win').length; const total=results.length; const winRate=total?Math.round((wins/total)*100):0; const encouragement=total?(winRate>=70?'Strong day copied':'Journal copied — keep stacking clean trades'):'Batch journal copied'; showToast(total?`${wins}/${total} wins · ${winRate}% copied`:'Batch journal copied'); setTimeout(()=>showToast(encouragement),1350);}catch(e){showToast('Copy failed');}}
+
+function showToast(message){const t=$('toast'); t.textContent=message; t.classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>t.classList.remove('show'),1300);}
+function isValidTicker(ticker){ return /^[A-Z]{1,5}(\.[A-Z]{1,2})?$/.test(String(ticker||'').trim()); }
+function sanitizeTickerInput(el){
+  if(!el) return;
+  el.value=String(el.value||'').toUpperCase().replace(/[^A-Z.]/g,'');
+  updateTradingViewButton();
+}
+function updateTradingViewButton(){
+  const btn=$('tvBtn');
+  if(!btn) return;
+  const ticker=($('ticker').value||'').trim();
+  btn.classList.toggle('is-disabled',!isValidTicker(ticker));
+}
+function openTradingView(){
+  const ticker=($('ticker').value||'').toUpperCase().trim();
+  if(!isValidTicker(ticker)) return showToast('Enter valid ticker first');
+  const symbol=encodeURIComponent(ticker);
+  window.open(`https://www.tradingview.com/chart/?symbol=${symbol}`,'_blank','noopener');
+}
+function updateSendButtonReady(){const btn=$('sendAlertBtn'); btn.classList.remove('ready'); clearTimeout(window.readyTimer); window.readyTimer=setTimeout(()=>btn.classList.add('ready'),140);}
+function renderLastAlert(){const last=loadState(), box=$('lastAlert'); box.innerHTML=(!last||!last.lastSent)?'No alert sent yet.':`<strong>Last alert:</strong> ${last.lastSent}`;}
+function clearValidation(){['entryShell','stopShell','targetShell'].forEach(id=>$(id).classList.remove('invalid'));}
+function markInvalid(ids){ids.forEach(id=>$(id).classList.add('invalid'));}
+function renderDisciplineHint(message,kind='info'){const hint=$('disciplineHint'); const colors={info:'rgba(53,200,232,.14)',warn:'rgba(242,181,98,.18)',bad:'rgba(255,127,151,.18)',good:'rgba(53,200,232,.14)'}; hint.style.borderColor=colors[kind]||colors.info; hint.innerHTML=message;}
+function syncStatusButtons(){const buttons=document.querySelectorAll('.status-btn'); buttons.forEach(btn=>btn.classList.remove('active')); let match='Watching'; if(statusText.includes('Waiting')) match='Waiting'; if(statusText.includes('Executed')) match='Executed'; const active=[...buttons].find(btn=>btn.textContent.includes(match)); if(active) active.classList.add('active');}
+function setStatus(text,el){statusText=text; document.querySelectorAll('.status-btn').forEach(btn=>btn.classList.remove('active')); if(el) el.classList.add('active'); if(text.includes('Executed')) markLatestJournalEvent('executedAt'); refreshAll(false);}
+function updateCatalystUI(catalyst){const el=$('catalystStrength'); if(!catalyst){ el.className='catalyst-strength catalyst-c'; el.textContent='Select catalyst'; el.dataset.strength=''; return; } const strength=getCatalystStrength(catalyst); el.className='catalyst-strength '+(strength==='A+'?'catalyst-a':strength==='B'?'catalyst-b':'catalyst-c'); el.textContent=strength==='A+'?'A+ Catalyst':strength==='B'?'B Setup':'C Setup'; el.dataset.strength=strength;}
+function showCatalystInfo(){const strength=$('catalystStrength').dataset.strength||'C'; if(strength==='A+') return showToast('A+ catalyst: strong news-driven setup'); if(strength==='B') return showToast('B setup: tradable, needs confirmation'); showToast('C setup: weaker catalyst, stay selective');}
+function validate(entry,stop,targetInput){
+  clearValidation();
+  const invalid=[];
+  if(!Number.isFinite(entry) || entry<=0) invalid.push('entryShell');
+  if(!Number.isFinite(stop) || stop<=0) invalid.push('stopShell');
+  if(!Number.isFinite(targetInput) || targetInput<=0) invalid.push('targetShell');
+  if(entry===stop){invalid.push('entryShell','stopShell'); markInvalid([...new Set(invalid)]); return {ok:false,message:'<strong>Check:</strong> entry and stop cannot be the same.',kind:'bad'};}
+  if(invalid.length){markInvalid([...new Set(invalid)]); return {ok:false,message:'<strong>Check:</strong> enter valid prices before sending.',kind:'bad'};}
+  if(direction==='long' && stop>=entry){markInvalid(['entryShell','stopShell']); return {ok:false,message:'<strong>Check:</strong> for a long, stop should sit below entry.',kind:'bad'};}
+  if(direction==='short' && stop<=entry){markInvalid(['entryShell','stopShell']); return {ok:false,message:'<strong>Check:</strong> for a short, stop should sit above entry.',kind:'bad'};}
+  return {ok:true};
+}
+function refreshAll(repopulate=true){
+  if(repopulate){populatePatterns(); populateCatalysts();}
+  if($('entry').value && (!$('stop').value || !stopTouched)) applyDefaultStop(false);
+  if($('entry').value && $('stop').value && (!$('target').value || !targetTouched)) applyDefaultTarget(false);
+  const ticker=($('ticker').value||'').toUpperCase().trim() || '—';
+  updateTradingViewButton();
+  const pattern=$('pattern').value||'', cleanPattern=pattern?cleanPatternName(pattern):'Select pattern', session=$('session').value||'Select session', catalyst=$('catalyst').value||'';
+  updateCatalystUI(catalyst);
+  const entry=parseFloat($('entry').value||'0');
+  const stop=parseFloat($('stop').value||'0');
+  const targetInput=parseFloat($('target').value||'0');
+  const validation=validate(entry,stop,targetInput);
+  const riskPerShare=Math.max(Math.abs(entry-stop),0.0001);
+  const riskBudgetBase=getBaseAccount()*getRiskPct();
+  const shares=Math.max(Math.floor(riskBudgetBase/riskPerShare),0);
+  const actualRiskBase=shares*riskPerShare;
+  const riskAmountUsd=actualRiskBase*currencyMeta['USD'].rate;
+  const riskAmountNative=actualRiskBase*currencyMeta[nativeCurrency].rate;
+  const target=targetInput;
+  const rewardPerShare=direction==='long' ? (target-entry) : (entry-target);
+  const rr=(rewardPerShare/riskPerShare);
+  const minAccountBase=riskPerShare/getRiskPct();
+  const minAccountUsd=minAccountBase*currencyMeta['USD'].rate;
+  const minAccountNative=minAccountBase*currencyMeta[nativeCurrency].rate;
+  $('shares').textContent=shares;
+  $('rr').textContent=`${Number.isFinite(rr)?rr.toFixed(1):'0.0'}R`;
+  $('riskAmt').textContent=`${currencyMeta['USD'].symbol}${fmt(riskAmountUsd)}`;
+  $('riskNative').textContent=`${currencyMeta[nativeCurrency].symbol}${fmt(riskAmountNative)}`;
+  $('riskPerShare').textContent=`$${fmt(Math.abs(entry-stop)*currencyMeta['USD'].rate)}/share`;
+  if(!validation.ok){
+    window.currentAlert='Waiting for valid setup…';
+    window.currentWhatsApp='Waiting for valid setup…';
+    window.currentJournal='Waiting for valid setup…';
+    $('alert').innerText='Waiting for valid setup…';
+    if(!(entry>0 && stop>0)){ $('shares').textContent='0'; $('rr').textContent='0.0R'; $('riskAmt').textContent='$0.00'; $('riskNative').textContent=`${currencyMeta[nativeCurrency].symbol}0.00`; $('riskPerShare').textContent='$0.00/share'; }
+    renderDisciplineHint(validation.message,validation.kind);
+  } else if(((direction==='long' && target<=entry) || (direction==='short' && target>=entry))) {
+    $('targetShell').classList.add('invalid');
+    $('alert').innerText='Waiting for valid setup…';
+    renderDisciplineHint(`<strong>Check:</strong> ${direction==='long'?'target should sit above entry for a long.':'target should sit below entry for a short.'}`,'bad');
+    window.currentAlert='Waiting for valid setup…';
+    window.currentWhatsApp='Waiting for valid setup…';
+    window.currentJournal='Waiting for valid setup…';
+  } else if(shares < 1) {
+    window.currentAlert='Waiting for valid setup…';
+    window.currentWhatsApp='Waiting for valid setup…';
+    window.currentJournal='Waiting for valid setup…';
+    $('alert').innerText='Waiting for valid setup…';
+    $('shares').textContent='0';
+    $('riskAmt').textContent='$0.00';
+    $('riskNative').textContent=`${currencyMeta[nativeCurrency].symbol}0.00`;
+    renderDisciplineHint(`<strong>Size too small:</strong> risk per share is too high for this account. Min account: $${fmt(minAccountUsd)} = ${currencyMeta[nativeCurrency].symbol}${fmt(minAccountNative)}.`,'warn');
+  } else if(rr < 1.5) {
+    window.currentAlert=buildAlert(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst);
+    window.currentWhatsApp=buildWhatsApp(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst);
+    window.currentJournal=buildJournal(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst,actualRiskBase);
+    $('alert').innerText=window.currentAlert;
+    renderDisciplineHint('<strong>Caution:</strong> reward is light for the current risk.','warn');
   } else {
-    el('streakDisplay').textContent = '❄️ ' + s.streakCount + 'L';
-    el('streakDisplay').style.color = 'var(--red)';
-    el('streakNote').textContent = s.streakCount + ' loss' + (s.streakCount > 1 ? 'es' : '') + ' in a row';
+    window.currentAlert=buildAlert(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst);
+    window.currentWhatsApp=buildWhatsApp(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst);
+    window.currentJournal=buildJournal(statusText,ticker,cleanPattern,session,entry,stop,target,shares,rr.toFixed(1),catalyst,actualRiskBase);
+    $('alert').innerText=window.currentAlert;
+    renderDisciplineHint('<strong>Ready:</strong> clean setup and risk defined.','good');
   }
-  updateMotivation();
+  const previous=loadState()||{};
+  saveState({ticker:'',pattern:'',session:'',catalyst:'',entry:'0.00',stop:'0.00',target:'0.00',statusText:'👁️ Watching',lastSent:previous.lastSent||'',currency:'GBP',nativeCurrency:'GBP',baseAccount:getBaseAccount(),riskPct:$('riskPct').value,direction:'long',targetMode:'price',journalQueue:previous.journalQueue||[],stopTouched:false,targetTouched:false,tradeToolsVisible});
+  updateSendButtonReady();
+  renderLastAlert();
 }
+async function copyAlert(){try{const check=getCurrentPlanValidation(); if(!check.ok){ renderDisciplineHint(check.message,check.kind||'bad'); return showToast('Fix plan first'); } await navigator.clipboard.writeText(window.currentAlert||''); if(navigator.vibrate) navigator.vibrate(10); markLatestJournalEvent('sentAt'); const state=loadState()||{}; state.lastSent=`${$('ticker').value.toUpperCase()} ${cleanPatternName($('pattern').value)} sent`; saveState(state); renderLastAlert(); showToast('Alert ready to send');}catch(e){showToast('Copy failed');}}
+async function copyWhatsApp(){try{const check=getCurrentPlanValidation(); if(!check.ok){ renderDisciplineHint(check.message,check.kind||'bad'); return showToast('Fix plan first'); } await navigator.clipboard.writeText(window.currentWhatsApp||''); if(navigator.vibrate) navigator.vibrate(10); showToast('WhatsApp copy ready');}catch(e){showToast('Copy failed');}}
+$('session').addEventListener('input',()=>refreshAll(false));
+$('session').addEventListener('change',()=>refreshAll(false));
+$('riskPct').addEventListener('input',()=>refreshAll(false));
+$('riskPct').addEventListener('change',()=>refreshAll(false));
+document.querySelectorAll('input,select').forEach(el=>{if(!['session','accountSize','riskPct','entry','stop','target'].includes(el.id)) { el.addEventListener('input',()=>refreshAll(false)); el.addEventListener('change',()=>refreshAll(false)); }});
+$('entry').addEventListener('input',()=>{stopTouched=false; targetTouched=false; applyDefaultStop(true); applyDefaultTarget(true); refreshAll(false);});
+$('entry').addEventListener('change',()=>{stopTouched=false; targetTouched=false; normalizeFieldValue($('entry'),'decimal'); applyDefaultStop(true); applyDefaultTarget(true); refreshAll(false);});
+$('target').addEventListener('input',()=>{targetTouched=true; refreshAll(false);});
+$('target').addEventListener('change',()=>{targetTouched=true; normalizeFieldValue($('target'),'decimal'); refreshAll(false);});
+$('stop').addEventListener('input',()=>{stopTouched=true; targetTouched=false; applyDefaultTarget(true); refreshAll(false);});
+$('stop').addEventListener('change',()=>{stopTouched=true; targetTouched=false; normalizeFieldValue($('stop'),'decimal'); applyDefaultTarget(true); refreshAll(false);});
+$('accountSize').addEventListener('input',handleAccountInput);
+$('accountSize').addEventListener('change',()=>{handleAccountInput(); refreshAll(false);});
 
-function updateMotivation(){
-  const s = state.stats;
-  const winRate = s.total ? (s.wins / s.total) * 100 : 0;
-  let msg = 'Log a few trades and CalcURisk will start reflecting your discipline, streaks, and consistency back to you and your dad.';
-  if(state.tradeQuality === 'Good Trade' && state.emotion === 'Disciplined') msg = 'You followed your plan. That is the habit to reinforce — not just the outcome.';
-  else if(state.tradeQuality === 'Broke Plan' || state.emotion === 'FOMO' || state.emotion === 'Revenge') msg = 'Discipline slipping. Slow down, shrink risk if needed, and protect the next decision.';
-  else if(s.streakType === 'W' && s.streakCount >= 3) msg = 'Strong run. Stay humble, keep position sizing the same, and do not let a hot streak turn into overconfidence.';
-  else if(s.streakType === 'L' && s.streakCount >= 3) msg = 'Rough patch. Focus on clean setups only. The goal is protecting mindset first, profits second.';
-  else if(s.total >= 5 && winRate >= 50) msg = 'Your edge is starting to show. Keep collecting clean reps and sharing the process, not just the wins.';
-  else if(s.total >= 5 && winRate < 50) msg = 'The data is useful. Review execution, not emotion, and let the sample size grow before judging yourself.';
-  el('motivationMessage').textContent = msg;
-}
+document.querySelectorAll('[data-currency]').forEach(btn=>{
+  btn.addEventListener('click',()=>setCurrency(btn.dataset.currency,btn));
+});
+document.querySelectorAll('[data-direction]').forEach(btn=>{
+  btn.addEventListener('click',()=>setDirection(btn.dataset.direction,btn));
+});
+['pattern','session','catalyst','riskPct'].forEach(id=>{
+  $(id).addEventListener('change',()=>refreshAll(false));
+});
 
-function fetchFx(){
-  fetch('https://api.frankfurter.app/latest?from=USD&to=GBP,EUR').then(r=>r.json()).then(d=>{
-    if(d.rates){
-      if(d.rates.GBP) state.fxGBP = Number(d.rates.GBP);
-      if(d.rates.EUR) state.fxEUR = Number(d.rates.EUR);
-      updateFxBadge();
-      calculate();
-      saveState();
+
+
+
+
+['pattern','catalyst','session'].forEach(id=>{
+  const el=$(id);
+  if(!el) return;
+  const advance=()=>{
+    if(!el.value) return;
+    focusNextFromMap(id);
+  };
+  el.addEventListener('input', advance);
+  el.addEventListener('change', advance);
+  el.addEventListener('blur', advance);
+});
+
+document.addEventListener('keydown', (e)=>{
+  const active = document.activeElement;
+  if(!active || !active.closest('.journal-item')) return;
+
+  if((e.key === 'Tab' || e.key === 'Enter') && active.dataset && active.dataset.journalStep === 'actualPnL'){
+    e.preventDefault();
+    if(typeof active.blur === 'function') active.blur();
+    focusNextJournalStep(active);
+  }
+});
+
+document.addEventListener('focusin', (e)=>{
+  const target=e.target;
+  if(target && target.closest('.journal-item') && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)){
+    scrollFieldIntoView(target);
+  }
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key!=='Tab' && e.key!=='Enter') return;
+  const active=document.activeElement;
+  if(!active || !active.closest('.journal-item')) return;
+  setTimeout(()=>{
+    const nowActive=document.activeElement;
+    if(nowActive && nowActive.closest('.journal-item')){
+      scrollFieldIntoView(nowActive);
     }
-  }).catch(()=>{ updateFxBadge(); calculate(); });
+  }, 20);
+});
+
+const saved=loadState()||{};
+if(Array.isArray(saved.journalQueue) && saved.journalQueue.length){
+  saved.journalQueue=[];
+  saveState(saved);
 }
+populatePatterns('');
+populateCatalysts('');
 
-['accountSize','riskPct','entryPrice','stopLossManual','manualTarget','tickerSymbol','actualEntry','actualExit'].forEach(id => {
-  el(id).addEventListener('input', calculate);
-});
-['tradeNotes','tradePattern'].forEach(id => el(id).addEventListener('input', updateMotivation));
-el('stopLossManual').addEventListener('input', ()=>{
-  if(el('stopLossManual').value.trim() === '') setSLPreset(state.slPct);
-});
+currentCurrency='GBP';
+nativeCurrency=saved.nativeCurrency||'GBP';
+direction='long';
+statusText='👁️ Watching';
+tradeToolsVisible=false;
+stopTouched=false;
+targetTouched=false;
 
-window.addEventListener('load', () => {
-  loadState();
-  setMode(state.mode || 'fast');
-  setCurrency(state.currency || 'USD');
-  renderSavedPlans();
-  renderStats();
-  updateFxBadge();
-  calculate();
-  fetchFx();
-});
-
-// Helpful shortcut: logging a trade to stats when user copies a filled plan with actual results.
-const originalCopyTradePlan = copyTradePlan;
-copyTradePlan = function(){
-  originalCopyTradePlan();
-  logTradeResult();
-};
+syncDirectionButtons();
+syncStatusButtons();
+syncCurrencyButtons();
+syncTradeToolsToggle();
+setCurrency('GBP');
+renderLastAlert();
+renderJournalQueue();
+scheduleFreshOpenPasses();
+window.addEventListener('pageshow', ()=>{ scheduleFreshOpenPasses(); });
+window.addEventListener('load', ()=>{ scheduleFreshOpenPasses(); });
+document.addEventListener('DOMContentLoaded', ()=>{ scheduleFreshOpenPasses(); });
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') scheduleFreshOpenPasses(); });
+window.setTimeout(()=>{ focusAccountSizeOnOpen(); }, 900);
 </script>
 </body>
 </html>
