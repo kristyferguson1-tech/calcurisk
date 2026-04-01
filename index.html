@@ -4,6 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>CalcURisk Pro Mode</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CalcURisk">
+<meta name="theme-color" content="#0d1117">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
 <style>
 :root{
   --bg:#0d1117;
@@ -278,6 +285,45 @@ select option{background:#0e1520;color:#f7fbff}
   .logo-img{
     height:68px !important;
   }
+}
+
+
+/* iPhone app + splash fixes */
+html,body{
+  padding:0;
+}
+.app{
+  min-height:100dvh;
+  padding-top:calc(env(safe-area-inset-top) + 10px);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.spc{
+  width:14px;
+  height:var(--h);
+  background:linear-gradient(180deg, rgba(255,255,255,.14), var(--c));
+  border-radius:4px 4px 2px 2px;
+  box-shadow:0 0 12px color-mix(in srgb, var(--c) 45%, transparent);
+  transform-origin:bottom center;
+  transform:scaleY(0.05);
+  opacity:0;
+  animation:growC .38s ease forwards;
+  animation-delay:var(--d, 0s);
+}
+.spc::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-8px;
+  width:2px;
+  height:8px;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,.85);
+  border-radius:2px;
+  opacity:.9;
+}
+@keyframes growC{
+  from{transform:scaleY(0.05);opacity:0;}
+  to{transform:scaleY(1);opacity:1;}
 }
 
 </style>
@@ -1492,8 +1538,7 @@ fetchLiveFX();
 (function(){
   var DURATION=1100;
   var start=Date.now();
-  var inst=document.getElementById('iSplash');
-  if(inst)inst.classList.add('gone');
+  var inst=document.getElementById('splashScreen');
   var prog=document.getElementById('splashProgress');
   function tickP(){var p=Math.min((Date.now()-start)/DURATION*100,100);if(prog)prog.style.width=p+'%';if(p<100)requestAnimationFrame(tickP);}
   requestAnimationFrame(tickP);
