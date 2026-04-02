@@ -65,7 +65,7 @@ body{
   padding:8px 14px 8px;
   border-bottom:1px solid var(--line-soft);
   background:rgba(18,25,34,.96);
-  backdrop-filter: blur(10px);
+  backdrop-filter:none !important;
 }
 .topbar,.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
@@ -158,7 +158,12 @@ select option{background:#0e1520;color:#f7fbff}
 .action{
   border-radius:16px;padding:12px 10px;border:1px solid var(--line);color:var(--text);font-weight:800;font-size:14px;cursor:pointer;min-height:48px;
 }
-.action.primary{background:linear-gradient(180deg,var(--accent),var(--accent-2));color:#07263c;border:none}
+.action.primary{
+  background:linear-gradient(180deg,var(--accent),var(--accent-2)) !important;
+  color:#07263c !important;
+  border:none !important;
+  box-shadow:0 8px 18px rgba(70,162,234,.22);
+}
 .action.ghost{background:var(--panel-2)}
 .action.warn{background:#16202b}
 .helper{font-size:10px;color:var(--muted);padding:0 2px 1px;line-height:1.2}
@@ -174,14 +179,18 @@ select option{background:#0e1520;color:#f7fbff}
 .drawer-backdrop.open{opacity:1;pointer-events:auto}
 .drawer{
   position:absolute;left:0;right:0;bottom:0;z-index:21;background:#0f151d;border-top:1px solid var(--line);border-radius:24px 24px 0 0;
-  transform:translateY(102%);transition:transform .22s ease;max-height:76%;display:flex;flex-direction:column;
+  transform:translateY(102%);transition:transform .22s ease;max-height:86%;display:flex;flex-direction:column;
 }
 .drawer.open{transform:translateY(0)}
-.drawer-head{padding:14px 14px 10px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.drawer-head{padding:14px 14px 10px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;gap:10px;flex:0 0 auto}
 .drawer-title{font-size:16px;font-weight:800}
 .drawer-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .drawer-actions{display:flex;gap:8px}
-.drawer-body{padding:10px 10px 14px;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.drawer-body{padding:8px 10px 12px;overflow:hidden;display:flex;flex-direction:column;gap:8px;flex:1;min-height:0}
+#journalSummary{position:sticky;top:0;z-index:2;background:#0f151d;padding-bottom:6px;flex:0 0 auto}
+#journalList{flex:1;min-height:220px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.18) transparent}
+#journalList::-webkit-scrollbar{width:6px}
+#journalList::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:999px}
 .plan{
   border:1px solid var(--line);background:#141c26;border-radius:18px;padding:10px;
 }
@@ -234,7 +243,7 @@ main::-webkit-scrollbar{display:none}
   padding:8px 14px 8px;
   border-bottom:1px solid var(--line-soft);
   background:rgba(18,25,34,.96);
-  backdrop-filter:blur(10px);
+  backdrop-filter:none !important;
 }
 .topbar{
   display:flex;
@@ -311,6 +320,17 @@ main::-webkit-scrollbar{display:none}
   }
 }
 
+/* Final header spacing tune: desktop/web only, preserve iPhone layout */
+@media (min-width:641px){
+  .top{padding-right:18px !important;}
+  .topbar{gap:18px !important; min-height:74px !important;}
+  .brand{flex:1 1 auto; padding-right:10px;}
+  .logo-img{height:64px !important; max-width:min(46vw,260px) !important;}
+  .header-actions{margin-left:auto; gap:10px;}
+  .icon-btn.small{width:44px; min-width:44px;}
+  .icon-btn#openJournalBtn{padding:12px 14px; white-space:nowrap;}
+}
+
 
 /* iPhone app + splash fixes */
 html,body{
@@ -350,6 +370,253 @@ html,body{
   to{transform:scaleY(1);opacity:1;}
 }
 
+
+.queue-btn{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.qbtn{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.btn-small{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.plan-btn{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.queue-actions button{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+
+.queue-actions button:active{background: rgba(255,255,255,0.16);}
+
+/* Crisp queue/action buttons */
+.queue-actions button,
+.plan-buttons button,
+.mini-btn,
+.drawer-btn,
+button[data-role="queue-action"]{
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.20) !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+  text-shadow: none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+.queue-actions button:active,
+.plan-buttons button:active,
+.mini-btn:active,
+.drawer-btn:active,
+button[data-role="queue-action"]:active{
+  background: rgba(255,255,255,0.18) !important;
+}
+
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:86px;
+  transform:translateX(-50%);
+  max-width:calc(100% - 24px);
+  background:#111821;
+  color:#fff;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:14px;
+  padding:10px 14px;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.15;
+  letter-spacing:0;
+  z-index:9999;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .16s ease;
+  white-space:nowrap;
+  box-shadow:0 8px 20px rgba(0,0,0,.28);
+  text-shadow:none !important;
+  filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  -webkit-font-smoothing:subpixel-antialiased;
+  text-rendering:auto;
+  font-family:Arial, Helvetica, sans-serif;
+}
+#toast.show{opacity:1}
+#toast.toast-success{
+  background:#132117;
+  border-color:rgba(104,211,145,.34);
+  color:#eafff1;
+}
+#toast.toast-warning{
+  background:#2a2012;
+  border-color:rgba(242,181,98,.34);
+  color:#fff2dd;
+}
+#toast.toast-info{
+  background:#111821;
+  border-color:rgba(100,181,246,.28);
+  color:#eef6ff;
+}
+#toast.toast-success{
+  background:#132117;
+  border-color:rgba(104,211,145,0.34);
+  color:#eafff1;
+}
+#toast.toast-warning{
+  background:#2a2012;
+  border-color:rgba(242,181,98,0.34);
+  color:#fff2dd;
+}
+#toast.toast-info{
+  background:#111821;
+  border-color:rgba(100,181,246,0.28);
+  color:#eef6ff;
+}
+
+
+/* Sharper queue buttons */
+.mini-btn,
+.drawer-btn,
+.plan-buttons .mini-btn,
+.plan-top .mini-btn{
+  background:#182330 !important;
+  border:1px solid rgba(255,255,255,0.20) !important;
+  color:#ffffff !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  letter-spacing:0 !important;
+  text-shadow:none !important;
+  filter:none !important;
+  opacity:1 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.mini-btn:active,
+.drawer-btn:active{
+  background:#223244 !important;
+}
+
+
+/* Outcome colour states in journal queue */
+.input-shell.outcome-win{
+  border-color:rgba(104,211,145,.45) !important;
+  background:rgba(104,211,145,.08) !important;
+}
+.input-shell.outcome-loss{
+  border-color:rgba(240,124,143,.45) !important;
+  background:rgba(240,124,143,.09) !important;
+}
+.input-shell.outcome-breakeven{
+  border-color:rgba(242,181,98,.40) !important;
+  background:rgba(242,181,98,.08) !important;
+}
+.input-shell.outcome-win select{color:#dff7e8 !important;}
+.input-shell.outcome-loss select{color:#ffdce3 !important;}
+.input-shell.outcome-breakeven select{color:#fff0d6 !important;}
+
+
+/* P/L colour states */
+.input-shell.pl-win{
+  border-color:rgba(104,211,145,.45) !important;
+  background:rgba(104,211,145,.08) !important;
+}
+.input-shell.pl-loss{
+  border-color:rgba(240,124,143,.45) !important;
+  background:rgba(240,124,143,.09) !important;
+}
+.input-shell.pl-breakeven{
+  border-color:rgba(242,181,98,.40) !important;
+  background:rgba(242,181,98,.08) !important;
+}
+.input-shell.pl-win input{color:#dff7e8 !important;}
+.input-shell.pl-loss input{color:#ffdce3 !important;}
+.input-shell.pl-breakeven input{color:#fff0d6 !important;}
+
+
+.web-clear-wrap{display:none}
+.web-clear-btn{
+  margin-top:8px;
+  width:100%;
+  border:1px dashed rgba(255,255,255,.14);
+  background:rgba(255,255,255,.03);
+  color:var(--muted);
+  border-radius:14px;
+  padding:9px 10px;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.web-clear-btn:active{background:rgba(255,255,255,.06)}
+@media (hover:hover) and (pointer:fine){
+  .web-clear-wrap{display:block}
+}
+
+
+@media (hover:hover) and (pointer:fine){
+  .drawer{max-height:min(92%, 780px)}
+  .drawer-head{padding:10px 12px 8px}
+  .drawer-title{font-size:15px}
+  .drawer-sub{font-size:10px}
+  .summary-bar{margin:0 0 6px}
+  .summary-mini{padding:6px}
+  #journalSummary{padding-bottom:4px}
+  #journalList{min-height:260px}
+  .actual-grid{gap:5px;margin-top:6px}
+  .actual-grid .input-shell{padding:6px 8px}
+  .plan{padding:8px}
+  .plan-buttons{gap:6px;margin-top:6px}
+  .mini-btn{padding:7px 9px;font-size:11px}
+  .web-clear-btn{margin-top:6px;padding:7px 10px}
+  .pull-hint{padding:6px 4px 0;font-size:10px}
+}
+
+@media (hover:hover) and (pointer:fine){ textarea[data-field="journalNote"]{min-height:64px !important;} }
 </style>
 </head>
 <body>
@@ -472,10 +739,11 @@ html,body{
     <div id="fxDisplay" style="padding:2px 10px 0;min-height:14px;"></div>
     <div class="bottom">
       <div class="actions">
-        <button class="action primary" id="alertBtn" type="button">Send Alert</button>
+        <button class="action primary" id="alertBtn" type="button">⚡ Send Alert</button>
         <button class="action ghost" id="savePlanBtn" type="button">Save Plan</button>
       </div>
-      <div class="pull-hint">Scroll if needed. Pull down to reset. This will not clear saved trade plans.</div>
+      <div class="web-clear-wrap"><button class="web-clear-btn" onclick="clearPlan();showToast('Journal queue kept · form reset','info')">Click to reset form on web. Saved trade plans stay in queue.</button></div>
+      <div class="pull-hint">Mobile: pull down to reset. Web: use the reset bar below. This will not clear saved trade plans.</div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -591,6 +859,59 @@ function guessSession(){
   if(hour < 17) return 'Power Hour';
   return 'After Hours';
 }
+
+function numOrNaN(v){
+  const raw = String(v ?? '').replace(/,/g,'').trim();
+  if(raw === '') return NaN;
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function getPlanDirection(plan){
+  return String(plan.direction || 'long').toLowerCase() === 'short' ? 'short' : 'long';
+}
+
+function inferOutcomeFromActuals(plan){
+  const dir = getPlanDirection(plan);
+  const entryVal = numOrNaN(plan.actualEntry || plan.entry);
+  const exitVal = numOrNaN(plan.actualExit);
+  const manualPnlRaw = String(plan.actualPnL ?? '').trim();
+  const manualPnl = numOrNaN(plan.actualPnL);
+
+  if(Number.isFinite(entryVal) && Number.isFinite(exitVal)){
+    if(dir === 'long'){
+      if(exitVal > entryVal) return 'Win';
+      if(exitVal < entryVal) return 'Loss';
+      return 'Breakeven';
+    } else {
+      if(exitVal < entryVal) return 'Win';
+      if(exitVal > entryVal) return 'Loss';
+      return 'Breakeven';
+    }
+  }
+
+  if(manualPnlRaw !== '' && Number.isFinite(manualPnl)){
+    if(manualPnl > 0) return 'Win';
+    if(manualPnl < 0) return 'Loss';
+    return 'Breakeven';
+  }
+
+  return 'Planned';
+}
+
+function computeActualPnl(plan){
+  const dir = getPlanDirection(plan);
+  const entryVal = numOrNaN(plan.actualEntry || plan.entry);
+  const exitVal = numOrNaN(plan.actualExit);
+  const sharesVal = numOrNaN(plan.actualShares || plan.shares);
+
+  if(!(Number.isFinite(entryVal) && Number.isFinite(exitVal) && Number.isFinite(sharesVal))) return '';
+
+  const points = dir === 'short' ? (entryVal - exitVal) : (exitVal - entryVal);
+  const pnl = points * sharesVal;
+  return (Math.round(pnl * 100) / 100).toFixed(2);
+}
+
 function num(v){
   const n = parseFloat(String(v).replace(/,/g,''));
   return Number.isFinite(n) ? n : 0;
@@ -763,25 +1084,52 @@ function getCatalystAlertPrefix(catalyst, pattern){
   return '';
 }
 function getPnlClass(value){
-  const raw = String(value ?? '').trim();
-  if(raw === '') return 'pnl-neutral';
-  const n = num(raw);
-  if(!Number.isFinite(n) || n === 0) return 'pnl-neutral';
-  return n > 0 ? 'pnl-positive' : 'pnl-negative';
+  const n = parseFloat(value);
+  if(!isNaN(n)){
+    if(n > 0) return 'pnl-positive';
+    if(n < 0) return 'pnl-negative';
+    return 'pnl-neutral';
+  }
+  return '';
 }
-function applyPnlVisual(shell, value){
+function applyPnlVisual(shell, value, inferredOutcome=''){
   if(!shell) return;
-  const klass = getPnlClass(value);
+  let klass = getPnlClass(value);
+  const raw = String(value ?? '').trim();
+  if(raw === ''){
+    const inferred = String(inferredOutcome || '').toLowerCase();
+    if(inferred === 'win') klass = 'pnl-positive';
+    else if(inferred === 'loss') klass = 'pnl-negative';
+    else if(inferred === 'breakeven') klass = 'pnl-neutral';
+  }
   const input = shell.querySelector('input');
   const sub = shell.querySelector('.field-sub');
+
   if(input){
-    input.classList.remove('pnl-positive','pnl-negative','pnl-neutral');
-    input.classList.add(klass);
+    input.classList.remove('pnl-positive','pnl-negative','pnl-neutral','pl-win','pl-loss','pl-breakeven');
   }
   if(sub){
     sub.classList.remove('pnl-positive','pnl-negative','pnl-neutral');
-    sub.classList.add(klass);
-    sub.textContent = formatPnlDisplayUSD(value) + ' USD';
+    const displayValue = raw === '' ? '—' : formatPnlDisplayUSD(value);
+    sub.textContent = displayValue + ' USD';
+  }
+
+  shell.classList.remove('pnl-positive','pnl-negative','pnl-neutral','pl-win','pl-loss','pl-breakeven');
+  shell.style.borderColor = '';
+  shell.style.background = '';
+
+  if(klass === 'pnl-positive'){
+    shell.classList.add('pl-win');
+    if(input) input.classList.add('pnl-positive');
+    if(sub) sub.classList.add('pnl-positive');
+  }else if(klass === 'pnl-negative'){
+    shell.classList.add('pl-loss');
+    if(input) input.classList.add('pnl-negative');
+    if(sub) sub.classList.add('pnl-negative');
+  }else if(klass === 'pnl-neutral'){
+    shell.classList.add('pl-breakeven');
+    if(input) input.classList.add('pnl-neutral');
+    if(sub) sub.classList.add('pnl-neutral');
   }
 }
 function buildAlertText(plan){
@@ -848,12 +1196,23 @@ function getPlan(){
     createdAt: new Date().toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
   };
 }
-function showToast(message){
-  const toast = $('toast');
+function showToast(message, variant='info'){
+  var toast = document.getElementById('toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.setAttribute('aria-live','polite');
+    document.body.appendChild(toast);
+  }
+  toast.className = '';
+  toast.id = 'toast';
+  if(variant === 'success') toast.classList.add('toast-success');
+  else if(variant === 'warning') toast.classList.add('toast-warning');
+  else toast.classList.add('toast-info');
   toast.textContent = message;
   toast.classList.add('show');
-  clearTimeout(showToast.t);
-  showToast.t = setTimeout(() => toast.classList.remove('show'), 1800);
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 1800);
 }
 async function copyText(text){
   try{
@@ -943,20 +1302,39 @@ function isTradeCompleted(plan){
 function updatePlanField(id, field, value){
   const plan = state.journal.find(p => String(p.id) === String(id));
   if(!plan) return;
+
   plan[field] = value;
-  if(field === 'actualPnL'){
-    const pnl = num(value);
-    if(String(value).trim() === '') plan.outcome = 'Planned';
-    else if(pnl > 0) plan.outcome = 'Win';
-    else if(pnl < 0) plan.outcome = 'Loss';
-    else plan.outcome = 'Breakeven';
-    const pnlShell = document.querySelector(`[data-pnl-shell="${id}"]`);
-    applyPnlVisual(pnlShell, value);
+
+  // Auto-calc P/L whenever actual trade values change.
+  if(field === 'actualEntry' || field === 'actualExit' || field === 'actualShares' || field === 'entry' || field === 'direction'){
+    const autoPnl = computeActualPnl(plan);
+    if(autoPnl !== ''){
+      plan.actualPnL = autoPnl;
+      const pnlInput = document.querySelector(`[data-plan-id="${id}"][data-field="actualPnL"]`);
+      if(pnlInput) pnlInput.value = autoPnl;
+    } else if(field !== 'entry' && field !== 'direction' && String(plan.actualPnL || '').trim() !== ''){
+      // If inputs are incomplete, leave manually entered P/L alone.
+    }
+    plan.outcome = inferOutcomeFromActuals(plan);
   }
+
+  // Manual P/L entry still updates the outcome if user types over it.
+  if(field === 'actualPnL'){
+    plan.outcome = inferOutcomeFromActuals(plan);
+  }
+
+  const pnlShell = document.querySelector(`[data-pnl-shell="${id}"]`);
+  applyPnlVisual(pnlShell, plan.actualPnL, plan.outcome);
+
+  const outcomeShell = document.querySelector(`[data-outcome-shell="${id}"]`);
+  applyOutcomeVisual(outcomeShell, plan.outcome);
+  const outcomeSelect = outcomeShell ? outcomeShell.querySelector('select') : null;
+  if(outcomeSelect) outcomeSelect.value = plan.outcome || 'Planned';
+
   saveState();
-  // Only do a full re-render if outcome changed (affects summary bar)
-  if(field === 'actualPnL' || field === 'outcome'){
-    const {completed, wins, total, winRate} = buildCompletedSummary();
+
+  if(field === 'actualPnL' || field === 'actualEntry' || field === 'actualExit' || field === 'actualShares' || field === 'outcome'){
+    const {wins, total, winRate} = buildCompletedSummary();
     const summary = $('journalSummary');
     if(summary) summary.innerHTML = `<div class="summary-bar">
       <div class="summary-mini"><div class="k">Completed</div><div class="v">${total}</div></div>
@@ -1199,20 +1577,19 @@ function renderJournal(){
 
     // P/L field with sub-text
     const plShell = makeInput(pid, 'actualPnL', plan.actualPnL, 'decimal', 'e.g. 125.50 or -78');
-    plShell.style.borderColor = 'rgba(104,211,145,.25)';
-    plShell.style.background = 'rgba(104,211,145,.06)';
     plShell.dataset.pnlShell = pid;
     const plSub = document.createElement('div');
     plSub.className = 'field-sub';
     plSub.dataset.pnlSub = pid;
     plSub.textContent = formatPnlDisplayUSD(plan.actualPnL) + ' USD';
     plShell.appendChild(plSub);
-    applyPnlVisual(plShell, plan.actualPnL);
+    applyPnlVisual(plShell, plan.actualPnL, plan.outcome);
     grid.appendChild(plShell);
 
     // Outcome select
     const outShell = document.createElement('div');
     outShell.className = 'input-shell';
+    outShell.dataset.outcomeShell = pid;
     const outLbl = document.createElement('div');
     outLbl.className = 'label';
     outLbl.textContent = 'Outcome';
@@ -1227,6 +1604,7 @@ function renderJournal(){
     outSel.addEventListener('change', function(){ updatePlanField(pid, 'outcome', this.value); });
     outShell.appendChild(outLbl);
     outShell.appendChild(outSel);
+    applyOutcomeVisual(outShell, plan.outcome);
     grid.appendChild(outShell);
 
     // Notes textarea
@@ -1260,6 +1638,7 @@ function renderJournal(){
 function openDrawer(){ $('journalDrawer').classList.add('open'); $('drawerBackdrop').classList.add('open'); }
 function closeDrawer(){ $('journalDrawer').classList.remove('open'); $('drawerBackdrop').classList.remove('open'); }
 function duplicatePlan(id){
+  showToast('🗂 Plan duplicated successfully','success');
   const plan = state.journal.find(p => String(p.id) === String(id));
   if(!plan) return;
   // Create a fresh copy in the journal with same planned levels but blank actuals
@@ -1282,6 +1661,7 @@ function duplicatePlan(id){
 }
 
 function loadPlan(id){
+  showToast('📥 Plan loaded into calculator','info');
   const plan = state.journal.find(p => String(p.id) === String(id));
   if(!plan) return;
   $('ticker').value = plan.ticker;
@@ -1427,10 +1807,10 @@ $('alertBtn').addEventListener('click', sendAlert);
 $('savePlanBtn').addEventListener('click', savePlanToDevice);
 $('copyBatchBtn').addEventListener('click', async () => {
   const text = buildBatchJournalText();
-  if(!text){ showToast('No completed trades to copy'); return; }
+  if(!text){ showToast('⚠️ No completed trades to copy','warning'); return; }
   const ok = await copyText(text);
   const stats = buildCompletedSummary();
-  showToast(ok ? `✅ ${stats.wins}/${stats.total} wins · ${stats.winRate}% copied` : 'Batch ready');
+  showToast(ok ? `✅ ${stats.wins}/${stats.total} wins · ${stats.winRate}% copied` : '📋 Batch ready', ok ? 'success' : 'info');
 });
 $('helpBtn').addEventListener('click', () => showToast('How-to guide coming soon'));
 $('settingsBtn').addEventListener('click', () => showToast('Settings coming soon'));
@@ -1441,7 +1821,7 @@ $('clearJournalBtn').addEventListener('click', () => {
   if(window.matchMedia('(min-width: 768px)').matches){
     closeDrawer();
   }
-  showToast('Journal cleared');
+  showToast('🧹 Journal queue cleared','warning');
 });
 // editNoteBtn removed
 
@@ -1503,7 +1883,7 @@ $('journalList').addEventListener('click', async (e) => {
     state.journal = state.journal.filter(p => String(p.id) !== String(removeId));
     renderJournal();
     saveState();
-    showToast('Deleted');
+    showToast('🗑 Plan removed','warning');
     return;
   }
   if(copyBtn){
@@ -1525,7 +1905,7 @@ $('journalList').addEventListener('click', async (e) => {
       plan.statusLabel = '🚀 Executed';
       renderJournal();
       saveState();
-      showToast('Marked executed');
+      showToast('✅ Trade marked as executed','success');
     }
     return;
   }
@@ -1569,6 +1949,100 @@ document.querySelectorAll('select').forEach(sel => {
 
 loadState();
 fetchLiveFX();
+
+
+function batchCopyPlans() {
+  const text = buildBatchJournalText();
+  if(!text){
+    showToast('⚠️ No completed trades to copy','warning');
+    return;
+  }
+  copyText(text).then(ok => {
+    const stats = buildCompletedSummary();
+    showToast(ok ? `✅ ${stats.wins}/${stats.total} wins · ${stats.winRate}% copied` : '📋 Batch ready', ok ? 'success' : 'info');
+  });
+}
+
+function fallbackCopyPlans(text, count) {
+  return copyText(text).then(ok => {
+    showToast(ok ? `Copied ${count} plan${count === 1 ? '' : 's'}` : 'Batch copy failed');
+  });
+}
+
+
+function applyOutcomeVisual(shell, value){
+  if(!shell) return;
+  shell.classList.remove('outcome-win','outcome-loss','outcome-breakeven');
+  const v = String(value || '').toLowerCase();
+  if(v === 'win') shell.classList.add('outcome-win');
+  else if(v === 'loss') shell.classList.add('outcome-loss');
+  else if(v === 'breakeven') shell.classList.add('outcome-breakeven');
+}
+
+
+function applyPlVisual(shell, value){
+  if(!shell) return;
+  shell.classList.remove('pl-win','pl-loss','pl-breakeven');
+  const v = Number(value);
+  if(!Number.isFinite(v)) return;
+  if(v > 0) shell.classList.add('pl-win');
+  else if(v < 0) shell.classList.add('pl-loss');
+  else shell.classList.add('pl-breakeven');
+}
+
+
+function normalizeDecimalInput(value){
+  const v = String(value || '').trim();
+  if(v.startsWith('.')) return '0' + v;
+  return v;
+}
+
+
+document.addEventListener('input', function(e){
+  const t = e.target;
+  if(!t || t.tagName !== 'INPUT') return;
+  const field = t.getAttribute('data-field') || '';
+  if(field === 'actualEntry' || field === 'actualExit'){
+    const normalized = normalizeDecimalInput(t.value);
+    if(normalized !== t.value){
+      const pos = normalized.length;
+      t.value = normalized;
+      try{ t.setSelectionRange(pos, pos); }catch(err){}
+    }
+  }
+}, true);
+
+document.addEventListener('blur', function(e){
+  const t = e.target;
+  if(!t || t.tagName !== 'INPUT') return;
+  const field = t.getAttribute('data-field') || '';
+  if(field === 'actualEntry' || field === 'actualExit'){
+    const normalized = normalizeDecimalInput(t.value);
+    if(normalized !== t.value){
+      t.value = normalized;
+      const id = t.getAttribute('data-plan-id');
+      if(id) updatePlanField(id, field, t.value);
+    }
+  }
+}, true);
+
+
+function ensurePlanInQueues(plan){
+  if(!plan) return;
+  if(!Array.isArray(state.tradePlans)) state.tradePlans = [];
+  if(!Array.isArray(state.queue)) state.queue = [];
+  const inTradePlans = state.tradePlans.some(p => String(p.id) === String(plan.id));
+  const inQueue = state.queue.some(p => String(p.id) === String(plan.id));
+  if(!inTradePlans) state.tradePlans.unshift(plan);
+  if(!inQueue) state.queue.unshift(plan);
+}
+
+function refreshAllQueues(){
+  try{ if(typeof renderPlans === 'function') renderPlans(); }catch(e){}
+  try{ if(typeof renderQueue === 'function') renderQueue(); }catch(e){}
+  try{ if(typeof renderSavedPlans === 'function') renderSavedPlans(); }catch(e){}
+  try{ if(typeof renderJournal === 'function') renderJournal(); }catch(e){}
+}
 
 </script>
 
@@ -1643,6 +2117,13 @@ fetchLiveFX();
   setTimeout(function(){var l=document.getElementById('splashLogos');if(l){l.style.transition='opacity 0.3s ease,transform 0.3s ease';l.style.opacity='1';l.style.transform='translateY(0)';}},620);
   setTimeout(function(){var sp=document.getElementById('splashScreen');if(sp){sp.style.transition='opacity 0.2s ease';sp.style.opacity='0';setTimeout(function(){if(sp&&sp.parentNode)sp.parentNode.removeChild(sp);},200);}},DURATION);
 })();
+
+function normalizeDecimalInput(value){
+  const v = String(value || '').trim();
+  if(v.startsWith('.')) return '0' + v;
+  return v;
+}
+
 </script>
 </body>
 </html>
