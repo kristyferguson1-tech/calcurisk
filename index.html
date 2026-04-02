@@ -1,3 +1,4 @@
+<!-- CalcURisk Stable Release v1.0 | Date: 2026-04-02 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,10 +86,11 @@ body{
 }
 .main{
   flex:1;
-  overflow:hidden;
+  overflow-y:auto;
   overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;
+  scrollbar-width:none;
   padding:6px 10px 4px;
   display:grid;
   grid-template-rows:auto auto auto auto auto auto auto;
@@ -149,7 +151,7 @@ select option{background:#0e1520;color:#f7fbff}
 .note-pill{min-height:50px;display:flex;align-items:center;padding:0 12px;border-radius:16px;border:1px dashed rgba(255,255,255,.10);color:var(--muted);background:rgba(255,255,255,.02)}
 .bottom{
   position:sticky;bottom:0;
-  padding:4px 10px calc(6px + env(safe-area-inset-bottom));
+  padding:6px 10px calc(8px + env(safe-area-inset-bottom));
   background:linear-gradient(180deg, rgba(16,21,29,0) 0%, rgba(16,21,29,.94) 18%, rgba(16,21,29,1) 100%);
 }
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -198,7 +200,7 @@ select option{background:#0e1520;color:#f7fbff}
 .actual-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:8px}
 .actual-grid .input-shell{border-radius:16px;padding:2px 8px;min-width:0}
 .actual-grid input,.actual-grid select,.actual-grid textarea{font-size:16px;font-weight:700;-webkit-user-select:text;user-select:text;touch-action:manipulation;cursor:text;}
-.actual-grid textarea{width:100%;background:none;border:none;outline:none;color:var(--text);padding:0;line-height:1.35;min-height:84px;resize:vertical;font-family:inherit}
+.actual-grid textarea{width:100%;background:none;border:none;outline:none;color:var(--text);padding:0;line-height:1.35;min-height:56px;resize:none;font-family:inherit}
 .field-sub{margin-top:4px;font-size:11px;color:var(--muted);line-height:1.2}
 .summary-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 8px}
 .summary-mini{background:#141c26;border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}
@@ -208,9 +210,16 @@ select option{background:#0e1520;color:#f7fbff}
 @media (max-width:390px){
   .phone{border-radius:0;width:100%;height:100dvh}
   .app{padding:0}
+  .top{padding:2px 10px 4px !important}
+  .topbar{height:64px !important}
+  .logo-img{height:52px !important}
+  main{padding:4px 8px 4px;}
+  .actions{gap:6px}
+  .action{padding:9px 8px;font-size:13px}
 }
 
 .pull-hint{font-size:11px;color:var(--muted);text-align:center;padding:8px 4px 0;line-height:1.2}
+main::-webkit-scrollbar{display:none}
 .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .icon-btn.small{padding:10px;width:42px;min-width:42px}
 @media (max-width:640px){
@@ -466,7 +475,7 @@ html,body{
         <button class="action primary" id="alertBtn" type="button">Send Alert</button>
         <button class="action ghost" id="savePlanBtn" type="button">Save Plan</button>
       </div>
-      <div class="pull-hint">Pull down to reset. This will not clear saved trade plans.</div>
+      <div class="pull-hint">Scroll if needed. Pull down to reset. This will not clear saved trade plans.</div>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -504,9 +513,7 @@ if(localStorage.getItem('calcurisk_app_version') !== APP_VERSION){
 }
 const JOURNAL_KEY = 'calcurisk_pro_mode_journal_v2';
 const NOTE_KEY = 'calcurisk_pro_mode_note_v1';
-const patternOptions = [
-  'BRB','Breakout / HOD','Cup and Handle','Day 1 Gapper','Day 2 Continuation','Day 3 Surge','Dip and Rip','Dollar Cross','Flag Break','Inverted H & S','Multiday Runner','ORB','Short Squeeze','VWAP Hold','VWAP Reclaim'
-];
+const patternOptions = ['BRB', 'Breakout / HOD', 'Cup and Handle', 'Day 1 Gapper', 'Day 2 Continuation', 'Day 3 Surge', 'Dip and Rip', 'Dollar Cross', 'Flag Break', 'Inverted H & S', 'Multiday Runner', 'ORB', 'RCT', 'Short Squeeze', 'VWAP Hold', 'VWAP Reclaim'];
 const catalystOptions = [
   'News A+','Earnings','PR / Press Release','FDA / Clinical','Gapper Momentum','High Relative Volume','Sector Strength','Technical Break Only','Short Squeeze Only'
 ];
@@ -1230,7 +1237,7 @@ function renderJournal(){
     noteLbl.className = 'label';
     noteLbl.textContent = 'Full Journal Note';
     const noteArea = document.createElement('textarea');
-    noteArea.style.cssText = '-webkit-user-select:text;user-select:text;touch-action:manipulation;width:100%;background:none;border:none;outline:none;color:var(--text);padding:0;line-height:1.35;min-height:84px;resize:vertical;font-family:inherit;font-size:13px;font-weight:700;';
+    noteArea.style.cssText = '-webkit-user-select:text;user-select:text;touch-action:manipulation;width:100%;background:none;border:none;outline:none;color:var(--text);padding:0;line-height:1.35;min-height:56px;resize:none;font-family:inherit;font-size:13px;font-weight:700;';
     noteArea.placeholder = 'Setup reasoning, market context, execution, what went well, what to do differently, lesson learned';
     noteArea.value = plan.reviewNote || '';
     noteArea.addEventListener('change', function(){ updatePlanField(pid, 'reviewNote', this.value); });
