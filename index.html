@@ -735,6 +735,7 @@ button[data-role="queue-action"]:active{
         <div class="chip-select">
           <div class="label" id="accountSizeLabel">Account Size (£)</div>
           <input id="accountSize" value="" inputmode="decimal" autocomplete="off" placeholder="0.00" />
+          <div id="accountRunningLabel" style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.3;display:none;"></div>
         </div>
         <div class="chip-select currency-wrap">
           <div class="label">Currency</div>
@@ -803,7 +804,7 @@ button[data-role="queue-action"]:active{
       <div class="metrics" style="grid-template-columns:repeat(4,1fr);gap:5px;">
         <div class="metric shares">
           <div class="k">Shares</div>
-          <input id="shares" value="" inputmode="numeric" placeholder="0" />
+          <input id="shares" value="" inputmode="decimal" placeholder="0" />
           <div class="s">Auto</div>
         </div>
         <div class="metric rr">
@@ -944,8 +945,46 @@ const state = {
   targetTouched:false,
   sharesTouched:false,
   note:'',
-  journal:[]
+  journal:[],
+  baseAccountSizeGBP: 0
 };
+
+// ── Running account balance ──────────────────────────────────────
+// Sums all completed P&L (in GBP) and adjusts the live account display.
+// The user's typed value is captured as baseAccountSizeGBP on input/change.
+// The account box then shows base + realised P&L so risk % stays accurate.
+function getRunningPnlGBP(){
+  return state.journal
+    .filter(p => String(p.actualPnL || '').trim() !== '')
+    .reduce((sum, p) => sum + num(p.actualPnL), 0);
+}
+function updateRunningAccount(){
+  const currency = $('currency') ? $('currency').value : 'GBP';
+  const sym = currencyMeta[currency]?.symbol || '£';
+  const runningPnlGBP = getRunningPnlGBP();
+  const runningAccountGBP = state.baseAccountSizeGBP + runningPnlGBP;
+  const runningAccountDisplay = convertMoney(runningAccountGBP, baseCurrency, currency);
+  const label = document.getElementById('accountRunningLabel');
+
+  if(!state.baseAccountSizeGBP || state.baseAccountSizeGBP <= 0){
+    if(label){ label.style.display = 'none'; label.textContent = ''; }
+    return;
+  }
+
+  if(label){
+    if(Math.abs(runningPnlGBP) > 0.001){
+      const baseDisplay = convertMoney(state.baseAccountSizeGBP, baseCurrency, currency);
+      const pnlDisplay = convertMoney(Math.abs(runningPnlGBP), baseCurrency, currency);
+      const pnlSign = runningPnlGBP >= 0 ? '+' : '-';
+      label.textContent = `Base ${sym}${baseDisplay.toFixed(2)} · P&L ${pnlSign}${sym}${pnlDisplay.toFixed(2)} · Running ${sym}${runningAccountDisplay.toFixed(2)}`;
+      label.style.color = runningPnlGBP >= 0 ? 'var(--green)' : 'var(--red)';
+      label.style.display = 'block';
+    } else {
+      label.style.display = 'none';
+      label.textContent = '';
+    }
+  }
+}
 
 function populateSelect(select, values){
   select.innerHTML = `<option value="" disabled selected></option>` + values.map(v => `<option>${v}</option>`).join('');
@@ -1038,6 +1077,7 @@ function saveState(){
     target: $('target').value,
     shares: $('shares').value,
     accountSize: $('accountSize').value,
+    baseAccountSizeGBP: state.baseAccountSizeGBP || 0,
     currency: $('currency').value,
     direction: state.direction,
     status: state.status,
@@ -1074,6 +1114,10 @@ function loadState(){
     state.stopTouched = false;  // always recalc on load
     state.targetTouched = false; // always recalc on load
     state.sharesTouched = !!saved.sharesTouched;
+    // Restore base account — prefer explicitly saved base, fall back to displayed value
+    state.baseAccountSizeGBP = saved.baseAccountSizeGBP > 0
+      ? saved.baseAccountSizeGBP
+      : convertMoney(num(saved.accountSize || '0'), saved.currency || 'GBP', baseCurrency);
   } else {
     $('pattern').value = '';
     $('catalyst').value = '';
@@ -1101,8 +1145,13 @@ function loadState(){
   // Sync SL% toggle label
   const slTog = document.getElementById('slPctToggle');
   if(slTog) slTog.textContent = 'Risk ' + Math.round(state.stopPercent * 100) + '%';
+  // If no saved base was restored, initialise from current DOM value
+  if(!state.baseAccountSizeGBP){
+    state.baseAccountSizeGBP = convertMoney(num($('accountSize').value), $('currency').value, baseCurrency);
+  }
   renderJournal();
   recalc();
+  updateRunningAccount();
 }
 function cycleSLPercent(){
   const steps = [0.05, 0.10, 0.15, 0.20];
@@ -1127,10 +1176,11 @@ function recalc(){
   let target = num($('target').value);
   const currency = $('currency').value;
   const riskPct = num($('riskPct').value);
-  // Account size is always stored in the currently selected currency display
-  // Convert to GBP for internal calculations
-  const accountDisplayed = num($('accountSize').value);
-  const accountGBP = convertMoney(accountDisplayed, currency, baseCurrency);
+  // Use running account (base + realised P&L) if base is set, else fall back to DOM input
+  const runningGBP = state.baseAccountSizeGBP > 0
+    ? state.baseAccountSizeGBP + getRunningPnlGBP()
+    : convertMoney(num($('accountSize').value), currency, baseCurrency);
+  const accountGBP = runningGBP;
 
   // Auto-calculate stop using the selected SL % if not manually set
   if(entry > 0 && !state.stopTouched){
@@ -1154,9 +1204,10 @@ function recalc(){
   const maxRiskDisplay = convertMoney(maxRiskGBP, baseCurrency, currency);
 
   if(entry > 0 && riskPerShare > 0 && !state.sharesTouched){
-    $('shares').value = String(Math.floor(maxRiskDisplay / riskPerShare));
+    const rawShares = maxRiskDisplay / riskPerShare;
+    $('shares').value = String(Math.round(rawShares * 100) / 100);
   }
-  const shares = Math.max(0, Math.floor(num($('shares').value)));
+  const shares = Math.max(0, num($('shares').value));
   const totalRiskDisplay = shares * riskPerShare;
   const capitalDisplay = shares * entry;
   const totalRiskGBP = convertMoney(totalRiskDisplay, currency, baseCurrency);
@@ -1263,7 +1314,7 @@ function getPlan(){
     entry: Number(num($('entry').value)).toFixed(2),
     stop: Number(num($('stop').value)).toFixed(2),
     target: Number(num($('target').value)).toFixed(2),
-    shares: String(Math.max(0, Math.floor(num($('shares').value)))),
+    shares: String(Math.max(0, num($('shares').value))),
     accountSize: $('accountSize').value,
     currency: $('currency').value,
     direction: state.direction,
@@ -1529,6 +1580,8 @@ function updatePlanField(id, field, value){
       <div class="summary-mini"><div class="k">Wins</div><div class="v">${wins}</div></div>
       <div class="summary-mini"><div class="k">Win Rate</div><div class="v">${winRate}%</div></div>
     </div>`;
+    updateRunningAccount();
+    recalc();
   }
 }
 function buildCompletedSummary(){
@@ -1593,7 +1646,7 @@ function getMovePct(plan){
   return `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
 }
 function getGapGBP(plan){
-  const plannedShares = Math.max(0, Math.floor(num(plan.shares)));
+  const plannedShares = Math.max(0, num(plan.shares));
   const plannedEntry = num(plan.entry);
   const plannedTarget = num(plan.target);
   const plannedPnl = Math.abs((plannedTarget - plannedEntry) * plannedShares);
@@ -1636,7 +1689,7 @@ function buildJournalCopyText(plan, idx){
     '',
     '✅ Actual',
     '',
-    `🔵 E ${plan.actualEntry || '—'} → 🔴 SL ${plan.actualExit || '—'} → 🟢 TP ${plan.target || '—'}`,
+    `🔵 E ${plan.actualEntry || '—'} → 🔴 SL ${plan.stop || '—'} → 🟢 TP ${plan.actualExit || plan.target || '—'}`,
     '',
     `📦 ${plan.actualShares || '—'} shares`,
     `💵 ${formatSignedMoney(actualPnlUSD, 'USD')} = ${formatSignedMoney(actualPnlGBP, 'GBP')}`,
@@ -1655,8 +1708,13 @@ function buildBatchJournalText(){
   const winWord = wins === 1 ? 'win' : 'wins';
   const losses = total - wins;
   const cheer = total ? `👏 Strong work today — ${wins} ${winWord} from ${total}, and you stayed in control.` : '';
+  // Use the date from the oldest completed trade (trading day date), or today
+  const tradeDate = completed.length && completed[completed.length - 1].createdAt
+    ? completed[completed.length - 1].createdAt.split(',')[0].trim()
+    : new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
   const header = [
-    '📊 CalcURisk — Trading Day Summary',
+    `📊 CalcURisk — Trading Day Summary`,
+    `📅 Trade Date: ${tradeDate}`,
     '━━━━━━━━━━━━━━━━━━━━━━',
     '',
     `✅ Wins: ${wins}   ❌ Losses: ${losses}   📋 Total: ${total}`,
@@ -1781,7 +1839,7 @@ function renderJournal(){
         <div class="mini"><div class="k">Shares</div><div class="v">${plan.shares}</div></div>
         <div class="mini"><div class="k">R:R</div><div class="v">${plan.rr}</div></div>
         <div class="mini"><div class="k">Risk</div><div class="v">${plan.riskValue}</div></div>
-        <div class="mini" style="grid-column:1/-1;border-color:rgba(104,211,145,.25);background:rgba(104,211,145,.06)"><div class="k">🎯 Target Profit</div><div class="v" style="color:var(--green)">${(()=>{const e=parseFloat(plan.entry)||0,t=parseFloat(plan.target)||0,s=parseInt(plan.shares)||0,diff=plan.direction==='short'?e-t:t-e,gbp=diff*s;if(!gbp||gbp<=0)return '—';const usd=gbp*currencyMeta.USD.perGBP;return fmtMoney(gbp,'GBP')+' / '+fmtMoney(usd,'USD');})()}</div></div>
+        <div class="mini" style="grid-column:1/-1;border-color:rgba(104,211,145,.25);background:rgba(104,211,145,.06)"><div class="k">🎯 Target Profit</div><div class="v" style="color:var(--green)">${(()=>{const e=parseFloat(plan.entry)||0,t=parseFloat(plan.target)||0,s=parseFloat(plan.shares)||0,diff=plan.direction==='short'?e-t:t-e,gbp=diff*s;if(!gbp||gbp<=0)return '—';const usd=gbp*currencyMeta.USD.perGBP;return fmtMoney(gbp,'GBP')+' / '+fmtMoney(usd,'USD');})()}</div></div>
       </div>
       <div class="plan-sub" style="margin-top:8px">${plan.nativeRiskValue || ''}<br>${plan.nativeCapitalValue || ''}</div>
       ${plan.note ? `<div style="margin-top:6px;padding:5px 8px;border-radius:10px;background:rgba(100,181,246,.07);border:1px solid rgba(100,181,246,.18);font-size:11px;font-weight:700;color:#a9d4f5;">📝 ${escapeAttr(plan.note)}</div>` : ''}`;
@@ -1790,25 +1848,11 @@ function renderJournal(){
     const grid = document.createElement('div');
     grid.className = 'actual-grid';
 
-    grid.appendChild(makeInput(pid, 'actualEntry', plan.actualEntry, 'decimal', ''));
-    grid.appendChild(makeInput(pid, 'actualExit', plan.actualExit, 'decimal', ''));
-    grid.appendChild(makeInput(pid, 'actualShares', plan.actualShares, 'numeric', ''));
-
-    // P/L field with sub-text
-    const plShell = makeInput(pid, 'actualPnL', plan.actualPnL, 'text', 'e.g. 125.50 or -78');
-    plShell.dataset.pnlShell = pid;
-    const plSub = document.createElement('div');
-    plSub.className = 'field-sub';
-    plSub.dataset.pnlSub = pid;
-    plSub.textContent = formatPnlDisplayUSD(plan.actualPnL) + ' USD';
-    plShell.appendChild(plSub);
-    applyPnlVisual(plShell, plan.actualPnL, plan.outcome);
-    grid.appendChild(plShell);
-
-    // Outcome select
+    // Outcome first — so Win/Loss is immediately visible
     const outShell = document.createElement('div');
     outShell.className = 'input-shell';
     outShell.dataset.outcomeShell = pid;
+    outShell.style.gridColumn = '1 / -1';
     const outLbl = document.createElement('div');
     outLbl.className = 'label';
     outLbl.textContent = 'Outcome';
@@ -1825,6 +1869,39 @@ function renderJournal(){
     outShell.appendChild(outSel);
     applyOutcomeVisual(outShell, plan.outcome);
     grid.appendChild(outShell);
+
+    grid.appendChild(makeInput(pid, 'actualEntry', plan.actualEntry, 'decimal', ''));
+    grid.appendChild(makeInput(pid, 'actualExit', plan.actualExit, 'decimal', ''));
+    grid.appendChild(makeInput(pid, 'actualShares', plan.actualShares, 'decimal', ''));
+
+    // P/L field with sub-text
+    const plShell = makeInput(pid, 'actualPnL', plan.actualPnL, 'text', 'e.g. 125.50 or -78');
+    plShell.dataset.pnlShell = pid;
+    const plSub = document.createElement('div');
+    plSub.className = 'field-sub';
+    plSub.dataset.pnlSub = pid;
+    plSub.textContent = formatPnlDisplayUSD(plan.actualPnL) + ' USD';
+    plShell.appendChild(plSub);
+    applyPnlVisual(plShell, plan.actualPnL, plan.outcome);
+    grid.appendChild(plShell);
+
+    // Editable trade date — spans full width
+    const dateShell = document.createElement('div');
+    dateShell.className = 'input-shell';
+    dateShell.style.gridColumn = '1 / -1';
+    const dateLbl = document.createElement('div');
+    dateLbl.className = 'label';
+    dateLbl.textContent = 'Trade Date (editable)';
+    const dateInput = document.createElement('input');
+    dateInput.type = 'text';
+    dateInput.value = plan.createdAt || '';
+    dateInput.placeholder = 'e.g. 10 Apr 2026 at 11:10';
+    dateInput.style.cssText = 'width:100%;background:none;border:none;outline:none;color:var(--muted);font-size:13px;font-weight:700;font-family:inherit;padding:2px 0;-webkit-user-select:text;user-select:text;touch-action:manipulation;';
+    dateInput.addEventListener('change', function(){ updatePlanField(pid, 'createdAt', this.value.trim()); });
+    dateInput.addEventListener('blur', function(){ updatePlanField(pid, 'createdAt', this.value.trim()); });
+    dateShell.appendChild(dateLbl);
+    dateShell.appendChild(dateInput);
+    grid.appendChild(dateShell);
 
     // Notes textarea
     const noteShell = document.createElement('div');
@@ -1953,7 +2030,7 @@ $('journalDrawer').addEventListener('click', (e) => {
   main.addEventListener('touchmove', function(e){
     if(!pulling) return;
     const dy = e.touches[0].clientY - startY;
-    if(main.scrollTop <= 0 && dy > 85){
+    if(main.scrollTop <= 0 && dy > 60){
       armed = true;
     }
   }, {passive:true});
@@ -2080,6 +2157,7 @@ document.querySelectorAll('.currency-toggle button').forEach(btn => btn.addEvent
   document.querySelectorAll('.currency-toggle button').forEach(b => b.classList.toggle('active', b === btn));
   state.sharesTouched = false;
   recalc();
+  updateRunningAccount();
 }));
 document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('click', () => {
   const next = btn.dataset.status;
@@ -2087,6 +2165,19 @@ document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('cl
   else setStatus('watching', true);
 }));
 ['ticker','pattern','catalyst','session','riskPct','accountSize','currency'].forEach(id => { $(id).addEventListener('input', recalc); $(id).addEventListener('change', recalc); });
+// When user manually edits account size, capture it as the new base
+$('accountSize').addEventListener('input', function(){
+  const currency = $('currency').value;
+  const displayed = num(this.value);
+  state.baseAccountSizeGBP = convertMoney(displayed, currency, baseCurrency);
+  updateRunningAccount();
+});
+$('accountSize').addEventListener('change', function(){
+  const currency = $('currency').value;
+  const displayed = num(this.value);
+  state.baseAccountSizeGBP = convertMoney(displayed, currency, baseCurrency);
+  updateRunningAccount();
+});
 $('entry').addEventListener('input', () => {
   state.stopTouched = false;
   state.targetTouched = false;
