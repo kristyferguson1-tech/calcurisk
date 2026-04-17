@@ -1640,20 +1640,26 @@ function formatDayPnlGBP(completed){
 }
 function getMovePct(plan){
   const entry = num(plan.actualEntry || plan.entry);
-  const exitVal = num(plan.actualExit || plan.target);
+  const exitVal = num(plan.actualExit);
   if(!entry || !exitVal) return '';
   const pct = ((exitVal - entry) / entry) * 100;
   return `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
 }
 function getGapGBP(plan){
-  const plannedShares = Math.max(0, num(plan.shares));
-  const plannedEntry = num(plan.entry);
+  // Gap = what actual shares would have made at planned target vs what was actually made
+  const actualShares = Math.max(0, num(plan.actualShares || plan.shares));
+  const plannedEntry = num(plan.actualEntry || plan.entry);
   const plannedTarget = num(plan.target);
-  const plannedPnl = Math.abs((plannedTarget - plannedEntry) * plannedShares);
+  const direction = String(plan.direction || 'long').toLowerCase();
+  const targetPnl = direction === 'short'
+    ? (plannedEntry - plannedTarget) * actualShares
+    : (plannedTarget - plannedEntry) * actualShares;
   const actualPnl = num(plan.actualPnL);
-  return actualPnl - plannedPnl;
+  return actualPnl - targetPnl;
 }
-function getGapLabel(gap){
+function getGapLabel(gap, plan){
+  const result = getTradeResult(plan);
+  if(result === 'loss') return '❌ Did not reach target';
   if(gap > 0.009) return '🔥 Exceeded plan';
   if(gap < -0.009) return '⚠️ Left profit on table';
   return '🎯 Executed to plan';
@@ -1682,21 +1688,24 @@ function buildJournalCopyText(plan, idx){
     '',
     `📦 ${plan.shares} shares | ${plan.rr}`,
     `🕒 Planned: ${plan.createdAt}`,
-    '📨 Sent: —',
-    `🚀 Executed: ${plan.createdAt}`,
+    plan.status === 'executed' ? `🚀 Executed: ${plan.createdAt}` : null,
     '',
     '──────────────',
     '',
     '✅ Actual',
     '',
-    `🔵 E ${plan.actualEntry || '—'} → 🔴 SL ${plan.stop || '—'} → 🟢 TP ${plan.actualExit || plan.target || '—'}`,
+    resultLabel === 'Win'       ? '🟢 ━━━ WIN ━━━ 🟢' :
+    resultLabel === 'Loss'      ? '🔴 ━━━ LOSS ━━━ 🔴' :
+    resultLabel === 'Breakeven' ? '🟡 ━━━ BREAKEVEN ━━━ 🟡' :
+                                  '⏳ ━━━ PLANNED ━━━ ⏳',
+    '',
+    `🔵 E ${plan.actualEntry || '—'} → 🔴 SL ${plan.stop || '—'} → 🟢 Exit ${plan.actualExit || '—'}`,
     '',
     `📦 ${plan.actualShares || '—'} shares`,
     `💵 ${formatSignedMoney(actualPnlUSD, 'USD')} = ${formatSignedMoney(actualPnlGBP, 'GBP')}`,
     movePct ? `📈 Move: ${movePct}` : null,
-    `🎯 Gap: ${formatSignedMoney(gapGBP, 'GBP')} (${formatSignedMoney(gapUSD, 'USD')})`,
-    getGapLabel(gapGBP),
-    `🏁 Outcome: ${resultLabel}`,
+    (gapGBP !== 0 && plan.actualExit) ? `🎯 Gap: ${formatSignedMoney(gapGBP, 'GBP')} (${formatSignedMoney(gapUSD, 'USD')})` : null,
+    (gapGBP !== 0 && plan.actualExit) ? getGapLabel(gapGBP, plan) : null,
     plan.note ? `\n📝 Note: ${plan.note}` : null
   ].filter(v => v !== null && v !== undefined).join('\n');
 }
@@ -1848,24 +1857,34 @@ function renderJournal(){
     const grid = document.createElement('div');
     grid.className = 'actual-grid';
 
-    // Outcome first — so Win/Loss is immediately visible
+    // Outcome badge — large, full-width, immediately visible above the input grid
     const outShell = document.createElement('div');
     outShell.className = 'input-shell';
     outShell.dataset.outcomeShell = pid;
-    outShell.style.gridColumn = '1 / -1';
+    outShell.style.cssText = 'grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:16px;min-height:52px;';
     const outLbl = document.createElement('div');
-    outLbl.className = 'label';
+    outLbl.style.cssText = 'font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0;';
     outLbl.textContent = 'Outcome';
+    const outBadge = document.createElement('div');
+    outBadge.style.cssText = 'font-size:20px;font-weight:900;letter-spacing:.02em;flex:1;text-align:right;';
+    const outcomeEmoji = {Win:'✅', Loss:'❌', Breakeven:'➖', Planned:'🕐'};
+    outBadge.textContent = `${outcomeEmoji[plan.outcome] || '🕐'} ${plan.outcome || 'Planned'}`;
     const outSel = document.createElement('select');
-    outSel.style.cssText = '-webkit-user-select:text;touch-action:manipulation;';
+    outSel.style.cssText = 'position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;-webkit-user-select:text;touch-action:manipulation;';
     ['Planned','Win','Loss','Breakeven'].forEach(v => {
       const o = document.createElement('option');
       o.value = v; o.textContent = v;
       if(plan.outcome === v) o.selected = true;
       outSel.appendChild(o);
     });
-    outSel.addEventListener('change', function(){ updatePlanField(pid, 'outcome', this.value); });
+    outSel.addEventListener('change', function(){
+      updatePlanField(pid, 'outcome', this.value);
+      const emoji = {Win:'✅', Loss:'❌', Breakeven:'➖', Planned:'🕐'};
+      outBadge.textContent = `${emoji[this.value] || '🕐'} ${this.value}`;
+    });
+    outShell.style.position = 'relative';
     outShell.appendChild(outLbl);
+    outShell.appendChild(outBadge);
     outShell.appendChild(outSel);
     applyOutcomeVisual(outShell, plan.outcome);
     grid.appendChild(outShell);
