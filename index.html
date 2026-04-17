@@ -1458,7 +1458,9 @@ async function copyText(text){
   }catch(e){
     const area = document.createElement('textarea');
     area.value = text;
+    area.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
     document.body.appendChild(area);
+    area.focus();
     area.select();
     const ok = document.execCommand('copy');
     area.remove();
@@ -1683,11 +1685,11 @@ function buildJournalCopyText(plan, idx){
   const gapGBP = getGapGBP(plan);
   const gapUSD = gapGBP * currencyMeta.USD.perGBP;
   const movePct = getMovePct(plan);
-  return [
+  const NL = '\n';
+  const lines = [
     `${idx}. 📝 ${plan.ticker || 'TICKER'} — ${plan.direction ? plan.direction[0].toUpperCase() + plan.direction.slice(1) : 'Long'}`,
     `📊 ${plan.pattern} (${plan.session})`,
     `🕒 ${plan.createdAt}`,
-    plan.status === 'executed' ? `🚀 Executed: ${plan.createdAt}` : null,
     '',
     (()=>{
       const pE  = String(plan.entry   || '—');
@@ -1702,7 +1704,7 @@ function buildJournalCopyText(plan, idx){
       const wSh = Math.max(pSh.length, aSh.length);
       const planned = `Planned → E ${pE.padEnd(wE)} | SL ${pSL} | TP ${pTP.padEnd(wTP)} | ${pSh.padEnd(wSh)}`;
       const actual  = `Actual  → E ${aE.padEnd(wE)} |        | TP ${aTP.padEnd(wTP)} | ${aSh.padEnd(wSh)}${movePct ? ' | ' + movePct : ''}`;
-      return planned + '\n' + actual;
+      return planned + NL + actual;
     })(),
     '',
     resultLabel === 'Win'       ? `🟢 ━━━ WIN ${formatSignedMoney(actualPnlUSD, 'USD')} (${formatSignedMoney(actualPnlGBP, 'GBP')}) ━━━ 🟢` :
@@ -1711,23 +1713,23 @@ function buildJournalCopyText(plan, idx){
                                   '⏳ ━━━ PLANNED ━━━ ⏳',
     (gapGBP !== 0 && plan.actualExit) ? `🎯 Gap: ${formatSignedMoney(gapGBP, 'GBP')} (${formatSignedMoney(gapUSD, 'USD')}) · ${getGapLabel(gapGBP, plan)}` : null,
     plan.note ? `📝 ${plan.note}` : null
-  ].filter(v => v !== null && v !== undefined).join('\n');
+  ].filter(v => v !== null && v !== undefined);
+  return lines.join(NL);
 }
 function buildBatchJournalText(){
   const {completed, wins, total, winRate} = buildCompletedSummary();
   if(!total) return '';
+  const NL = '\n';
   const dayPnlGBP = formatDayPnlGBP(completed);
   const dayPnlUSD = dayPnlGBP * currencyMeta.USD.perGBP;
   const winWord = wins === 1 ? 'win' : 'wins';
   const losses = total - wins;
   const cheer = total ? `👏 Strong work today — ${wins} ${winWord} from ${total}, and you stayed in control.` : '';
   // Use the date from the oldest completed trade (trading day date), or today
-  // Extract and normalise the trade date from oldest completed trade
   const rawDate = completed.length && completed[completed.length - 1].createdAt
     ? completed[completed.length - 1].createdAt
     : '';
   let tradeDate = rawDate.split(',')[0].trim();
-  // Try to parse and reformat to consistent "DD Mon YYYY" style
   if(tradeDate){
     const parsed = new Date(tradeDate);
     if(!isNaN(parsed.getTime())){
@@ -1736,29 +1738,30 @@ function buildBatchJournalText(){
   }
   if(!tradeDate) tradeDate = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
   const header = [
-    `📊 CalcURisk — Trading Day Summary`,
-    `📅 Trade Date: ${tradeDate}`,
+    '📊 CalcURisk — Trading Day Summary',
+    '📅 Trade Date: ' + tradeDate,
     '━━━━━━━━━━━━━━━━━━━━━━',
-    `✅ Wins: ${wins}   ❌ Losses: ${losses}   📋 Total: ${total}`,
-    `🎯 Win Rate: ${winRate}%`,
-    `💰 Day P/L: ${formatSignedMoney(dayPnlUSD, 'USD')} (${formatSignedMoney(dayPnlGBP, 'GBP')})`,
+    '✅ Wins: ' + wins + '   ❌ Losses: ' + losses + '   📋 Total: ' + total,
+    '🎯 Win Rate: ' + winRate + '%',
+    '💰 Day P/L: ' + formatSignedMoney(dayPnlUSD, 'USD') + ' (' + formatSignedMoney(dayPnlGBP, 'GBP') + ')',
     cheer,
     '',
     '━━━━━━━━━━━━━━━━━━━━━━'
-  ].join('\n');
-  const body = completed.map((plan, idx) => buildJournalCopyText(plan, idx + 1)).join('\n\n────────────────────\n\n');
+  ].join(NL);
+  const DIVIDER = NL + NL + '────────────────────' + NL + NL;
+  const body = completed.map(function(plan, idx){ return buildJournalCopyText(plan, idx + 1); }).join(DIVIDER);
   const reviewTemplate = [
     '',
     '──────── Day Review ────────',
     '🗒️ Overall Day Notes',
-    '• Setup reasoning:',
-    '• Market context:',
-    '• Execution (followed plan?):',
-    '• What went well:',
-    '• What I\'d do differently:',
-    '• Lesson learned:'
-  ].join('\n');
-  return `${header}\n\n${body.replace(/(\n\n────────────────────\n\n?)$/, "\n")}\n${reviewTemplate}`;
+    '- Setup reasoning:',
+    '- Market context:',
+    '- Execution (followed plan?):',
+    '- What went well:',
+    "- What I'd do differently:",
+    '- Lesson learned:'
+  ].join(NL);
+  return header + NL + NL + body + NL + NL + reviewTemplate;
 }
 
 function makeInput(planId, field, value, inputmode, placeholder){
