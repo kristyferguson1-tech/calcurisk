@@ -1133,6 +1133,12 @@ function loadState(){
   state.note = '';
   if($('quickNote')) $('quickNote').value = '';
   state.journal = JSON.parse(localStorage.getItem(JOURNAL_KEY) || '[]');
+  // Infer manualPnL flag for plans loaded from storage that don't have it set
+  state.journal.forEach(p => {
+    if(p.manualPnL === undefined){
+      p.manualPnL = String(p.actualPnL || '').trim() !== '';
+    }
+  });
   if($('notePreview')) $('notePreview').textContent = state.note ? state.note : '';
   document.querySelectorAll('.segmented button').forEach(btn => btn.classList.toggle('active', btn.dataset.dir === state.direction));
   document.querySelectorAll('.currency-toggle button').forEach(btn => btn.classList.toggle('active', btn.dataset.currency === $('currency').value));
@@ -1331,6 +1337,7 @@ function getPlan(){
     actualExit:'',
     actualShares:'',
     actualPnL:'',
+    manualPnL: false,
     outcome:'Planned',
     createdAt: new Date().toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
   };
@@ -1539,17 +1546,15 @@ function updatePlanField(id, field, value){
 
   plan[field] = value;
 
-  // Auto-calc P/L whenever actual trade values change, but only if user hasn't manually set P/L
+  // If user manually typed a P&L, set the flag to protect it from auto-calc
+  if(field === 'actualPnL'){
+    plan.manualPnL = String(value || '').trim() !== '';
+  }
+
+  // Auto-calc P/L whenever actual trade values change, but ONLY if user hasn't manually set P/L
   if(field === 'actualEntry' || field === 'actualExit' || field === 'actualShares' || field === 'entry' || field === 'direction'){
     const autoPnl = computeActualPnl(plan);
-    // Only auto-fill P/L if the user hasn't manually overridden it
-    if(autoPnl !== '' && String(plan.actualPnL || '').trim() === ''){
-      plan.actualPnL = autoPnl;
-      const pnlInput = document.querySelector(`[data-plan-id="${id}"][data-field="actualPnL"]`);
-      if(pnlInput) pnlInput.value = autoPnl;
-    } else if(autoPnl !== '' && (field === 'actualEntry' || field === 'actualExit' || field === 'actualShares')){
-      // If entry/exit/shares changed and P/L is currently auto-calculable, recalculate
-      // unless user has a manually entered value that differs significantly
+    if(autoPnl !== '' && !plan.manualPnL){
       plan.actualPnL = autoPnl;
       const pnlInput = document.querySelector(`[data-plan-id="${id}"][data-field="actualPnL"]`);
       if(pnlInput) pnlInput.value = autoPnl;
@@ -1681,32 +1686,31 @@ function buildJournalCopyText(plan, idx){
   return [
     `${idx}. 📝 ${plan.ticker || 'TICKER'} — ${plan.direction ? plan.direction[0].toUpperCase() + plan.direction.slice(1) : 'Long'}`,
     `📊 ${plan.pattern} (${plan.session})`,
-    '',
-    '🎯 Planned',
-    '',
-    `🔵 E ${plan.entry} → 🔴 SL ${plan.stop} → 🟢 TP ${plan.target}`,
-    '',
-    `📦 ${plan.shares} shares | ${plan.rr}`,
-    `🕒 Planned: ${plan.createdAt}`,
+    `🕒 ${plan.createdAt}`,
     plan.status === 'executed' ? `🚀 Executed: ${plan.createdAt}` : null,
     '',
-    '──────────────',
+    (()=>{
+      const pE  = String(plan.entry   || '—');
+      const pSL = String(plan.stop    || '—');
+      const pTP = String(plan.target  || '—');
+      const pSh = String(plan.shares  || '—') + 'sh';
+      const aE  = String(plan.actualEntry || '—');
+      const aTP = String(plan.actualExit  || '—');
+      const aSh = String(plan.actualShares || '—') + 'sh';
+      const wE  = Math.max(pE.length,  aE.length);
+      const wTP = Math.max(pTP.length, aTP.length);
+      const wSh = Math.max(pSh.length, aSh.length);
+      const planned = `Planned → E ${pE.padEnd(wE)} | SL ${pSL} | TP ${pTP.padEnd(wTP)} | ${pSh.padEnd(wSh)}`;
+      const actual  = `Actual  → E ${aE.padEnd(wE)} |        | TP ${aTP.padEnd(wTP)} | ${aSh.padEnd(wSh)}${movePct ? ' | ' + movePct : ''}`;
+      return planned + '\n' + actual;
+    })(),
     '',
-    '✅ Actual',
-    '',
-    resultLabel === 'Win'       ? '🟢 ━━━ WIN ━━━ 🟢' :
-    resultLabel === 'Loss'      ? '🔴 ━━━ LOSS ━━━ 🔴' :
-    resultLabel === 'Breakeven' ? '🟡 ━━━ BREAKEVEN ━━━ 🟡' :
+    resultLabel === 'Win'       ? `🟢 ━━━ WIN ${formatSignedMoney(actualPnlUSD, 'USD')} (${formatSignedMoney(actualPnlGBP, 'GBP')}) ━━━ 🟢` :
+    resultLabel === 'Loss'      ? `🔴 ━━━ LOSS ${formatSignedMoney(actualPnlUSD, 'USD')} (${formatSignedMoney(actualPnlGBP, 'GBP')}) ━━━ 🔴` :
+    resultLabel === 'Breakeven' ? `🟡 ━━━ BREAKEVEN ${formatSignedMoney(actualPnlUSD, 'USD')} (${formatSignedMoney(actualPnlGBP, 'GBP')}) ━━━ 🟡` :
                                   '⏳ ━━━ PLANNED ━━━ ⏳',
-    '',
-    `🔵 E ${plan.actualEntry || '—'} → 🔴 SL ${plan.stop || '—'} → 🟢 Exit ${plan.actualExit || '—'}`,
-    '',
-    `📦 ${plan.actualShares || '—'} shares`,
-    `💵 ${formatSignedMoney(actualPnlUSD, 'USD')} = ${formatSignedMoney(actualPnlGBP, 'GBP')}`,
-    movePct ? `📈 Move: ${movePct}` : null,
-    (gapGBP !== 0 && plan.actualExit) ? `🎯 Gap: ${formatSignedMoney(gapGBP, 'GBP')} (${formatSignedMoney(gapUSD, 'USD')})` : null,
-    (gapGBP !== 0 && plan.actualExit) ? getGapLabel(gapGBP, plan) : null,
-    plan.note ? `\n📝 Note: ${plan.note}` : null
+    (gapGBP !== 0 && plan.actualExit) ? `🎯 Gap: ${formatSignedMoney(gapGBP, 'GBP')} (${formatSignedMoney(gapUSD, 'USD')}) · ${getGapLabel(gapGBP, plan)}` : null,
+    plan.note ? `📝 ${plan.note}` : null
   ].filter(v => v !== null && v !== undefined).join('\n');
 }
 function buildBatchJournalText(){
@@ -1718,19 +1722,26 @@ function buildBatchJournalText(){
   const losses = total - wins;
   const cheer = total ? `👏 Strong work today — ${wins} ${winWord} from ${total}, and you stayed in control.` : '';
   // Use the date from the oldest completed trade (trading day date), or today
-  const tradeDate = completed.length && completed[completed.length - 1].createdAt
-    ? completed[completed.length - 1].createdAt.split(',')[0].trim()
-    : new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+  // Extract and normalise the trade date from oldest completed trade
+  const rawDate = completed.length && completed[completed.length - 1].createdAt
+    ? completed[completed.length - 1].createdAt
+    : '';
+  let tradeDate = rawDate.split(',')[0].trim();
+  // Try to parse and reformat to consistent "DD Mon YYYY" style
+  if(tradeDate){
+    const parsed = new Date(tradeDate);
+    if(!isNaN(parsed.getTime())){
+      tradeDate = parsed.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+    }
+  }
+  if(!tradeDate) tradeDate = new Date().toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
   const header = [
     `📊 CalcURisk — Trading Day Summary`,
     `📅 Trade Date: ${tradeDate}`,
     '━━━━━━━━━━━━━━━━━━━━━━',
-    '',
     `✅ Wins: ${wins}   ❌ Losses: ${losses}   📋 Total: ${total}`,
     `🎯 Win Rate: ${winRate}%`,
-    '',
     `💰 Day P/L: ${formatSignedMoney(dayPnlUSD, 'USD')} (${formatSignedMoney(dayPnlGBP, 'GBP')})`,
-    '',
     cheer,
     '',
     '━━━━━━━━━━━━━━━━━━━━━━'
@@ -1739,7 +1750,6 @@ function buildBatchJournalText(){
   const reviewTemplate = [
     '',
     '──────── Day Review ────────',
-    '',
     '🗒️ Overall Day Notes',
     '• Setup reasoning:',
     '• Market context:',
@@ -1748,7 +1758,7 @@ function buildBatchJournalText(){
     '• What I\'d do differently:',
     '• Lesson learned:'
   ].join('\n');
-  return `${header}\n\n────────────────────\n\n${body}\n${reviewTemplate}`;
+  return `${header}\n\n${body.replace(/(\n\n────────────────────\n\n?)$/, "\n")}\n${reviewTemplate}`;
 }
 
 function makeInput(planId, field, value, inputmode, placeholder){
@@ -1963,6 +1973,7 @@ function duplicatePlan(id){
     actualExit: '',
     actualShares: '',
     actualPnL: '',
+    manualPnL: false,
     outcome: 'Planned',
     reviewNote: '',
     createdAt: new Date().toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
